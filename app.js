@@ -189,7 +189,7 @@ const programData = {
             component: 'CMH Delivery',
             description: '1 day - 6 to 7 hours of delivery + 2 hours set-up/tear down\n(Delivery = 6 hours, Prep = 24 hours (6 x 4) - Prep ratio 4/1, Set-up/Tear Down = 2 hours, Total = 32 hours per PLF. MINIMUM 2 PLFs Required = 64 hours)',
             multiplier: 1,
-            hours: { PLF: 64, 'Program Coordinator': 0, 'Director of Evaluation': 8 }
+            hours: { PLF: 64, 'Program Coordinator': 8, 'Director of Evaluation': 0 }
         },
         {
             component: 'CMH Prep and Logistic Coordination',
