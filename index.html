@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400&family=Visby+CF:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        secondary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        accent: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Visby CF', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        'display': ['Mali', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        'subheader': ['Visby CF', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                    fontWeight: {
+                        'normal': 400,
+                        'medium': 500,
+                        'semibold': 600,
+                        'bold': 700,
+                        'extrabold': 800,
+                        'black': 900,
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50">
+        <div class="max-w-7xl mx-auto px-4 py-6">
+            <!-- Header -->
+            <header class="mb-6">
+                <div class="flex items-center gap-4 mb-2">
+                    <img src="WorldSavvyLogo_CMYK_FullColorHorizontal.png" alt="World Savvy Logo" class="h-12 w-auto">
+                    <div>
+                        
+                        <p class="text-slate-600 mt-1 font-sans font-bold">Program Offering Cost Estimation</p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Panel - Program Selection & Summary -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Program Selector -->
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+                        <h2 class="text-lg font-subheader font-black text-slate-900 mb-4">Program Selection</h2>
+                        <select id="programSelector" class="w-full px-3 py-2 text-sm font-sans border border-slate-300 rounded-md focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                            <option value="">Select Program Offering</option>
+                        </select>
+                    </div>
+
+                    <!-- Cost Summary -->
+                    <div id="summaryPanel" class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 hidden">
+                        <h2 class="text-lg font-subheader font-black text-slate-900 mb-4">Cost Summary</h2>
+
+                        <!-- Base Costs -->
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-600">Base Cost:</span>
+                                <span class="font-medium" id="baseCost">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-600">Indirect Cost:</span>
+                                <span class="font-medium" id="indirectCost">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-600">Markup:</span>
+                                <span class="font-medium" id="markupCost">$0.00</span>
+                            </div>
+                            <hr class="border-slate-200">
+                            <div class="flex justify-between text-sm font-medium">
+                                <span class="text-slate-700">Subtotal:</span>
+                                <span id="subtotal">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Additional Costs -->
+                        <div class="space-y-4 mb-6">
+                            <h3 class="text-sm font-subheader font-black text-slate-900">Additional Costs</h3>
+
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Airfare</label>
+                                <input type="number" id="airfare" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:border-primary-500 focus:ring-1 focus:ring-primary-500" min="0" step="0.01" value="0">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Hotel</label>
+                                <input type="number" id="hotel" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:border-primary-500 focus:ring-1 focus:ring-primary-500" min="0" step="0.01" value="0">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Transportation</label>
+                                <input type="number" id="transportation" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:border-primary-500 focus:ring-1 focus:ring-primary-500" min="0" step="0.01" value="0">
+                            </div>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="bg-slate-50 rounded-md p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-subheader font-black text-slate-900">Total Estimate:</span>
+                                <span class="text-2xl font-bold text-primary-600" id="totalAmount">$0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="grid grid-cols-2 gap-3 mt-6">
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Indirect Rate (%)</label>
+                                <input type="number" id="indirectRate" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:border-primary-500 focus:ring-1 focus:ring-primary-500" min="0" max="100" step="0.1" value="0">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-600 mb-1">Markup (%)</label>
+                                <input type="number" id="markup" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:border-primary-500 focus:ring-1 focus:ring-primary-500" min="0" max="100" step="0.1" value="0">
+                            </div>
+                        </div>
+
+                        <button class="w-full mt-4 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors" onclick="exportToPDF()">Export Estimate</button>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Program Details -->
+                <div class="lg:col-span-2">
+                    <div id="selectedProgramContainer" class="hidden">
+                        <div id="programsContainer"></div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="bg-white rounded-lg shadow-sm border border-slate-200 p-12 text-center">
+                        <div class="text-slate-400 mb-4">
+                            <svg class="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-subheader font-black text-slate-900 mb-2">Select a Program</h3>
+                        <p class="text-slate-600">Choose a program offering from the dropdown to view components and pricing details.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

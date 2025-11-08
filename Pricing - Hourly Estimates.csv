@@ -1,0 +1,184 @@
+"Loom video overview and context.
+Standard assumptions: 
+- Workshops, PLCs, and Deep Dives have a prep/delivery ratio of 4/1
+- Coaching has a prep/delivery ratio of 1.5/1
+Evaluation (Yellow fields) are not multiplied when programs are scaled.
+All other fields (Programmatic components (White) and the aligned travel level (blue)) should be scaled in accordance with the increase from the standard package",,,,"PLF Prep to delivery ratios
+Coaching and Admin meetings 1.5/1
+Existing Workshops 4/1",,
+Program Offerings,Program Components,Standard base package terms,Standard Base Package Hourly Multiplier,PLF - (Salary averaged),Program Coordinator,Director of Evaluation
+Traditional Comprehensive School Partnership (TCSP),Yearly launch workshop,"1 day, 6 hours delivery + 2 hours set-up/tear down
+(Delivery = 6 hours
+Prep = 24 hours (6 x 4) - Prep ratio of 4/1
+Set-up/Tear Down = 2 hours
+Total = 32 hours)",1,32,0,0
+Traditional Comprehensive School Partnership (TCSP),1:1 Coaching,"15 teachers
+8 sessions per teacher
+(15 x 8 =120)
+(Prep ratio of 1.5/1)",120,2.5,0,0
+Traditional Comprehensive School Partnership (TCSP),Deep Dives,"90 min delivery
+In-person aligned with existing coaching schedule OR virtual
+2 sessions included yearly (x2)
+(Delivery = 1.5 hours
+Prep = 6 hours (1.5 x 4) - Prep ratio of 4/1
+Total = 7.5 hours",2,7.5,0,0
+Traditional Comprehensive School Partnership (TCSP),MOY Evaluation,"Survey data aggregation and top sheet creation
+Once yearly",1,2,0,20
+Traditional Comprehensive School Partnership (TCSP),EOY Evaluation,"Survey data aggregation and top sheet creation
+Once yearly",1,2,0,20
+Traditional Comprehensive School Partnership (TCSP),Quarterly Admin Meetings,"1 hour per quarter 
+(1 x 4 = 4)
+(Prep for admin meetings included in coaching prep)",4,2.5,0,0
+Traditional Comprehensive School Partnership (TCSP),"Travel Multiplier 
+(Assumes all in-peson delivery of services: 1 launch workshop + 8 Coaching Sessions = 9 trips. Deep Dives and Admin Meetings should be coordinated within this time or scheduled virtually)","Low Travel
+Estimated travel time 30 min to 2 hours each way",9,3,0,0
+Traditional Comprehensive School Partnership (TCSP),,"Mid Travel
+Estimated travel time 2 to 6 hours each way",9,8,0,0
+Traditional Comprehensive School Partnership (TCSP),,"High travel
+Estimated travel time 6 to 10 hours each way",9,16,0,0
+Professional Learning Community Comprehensive School Partnership (PLC CSP),Yearly launch workshop,"1 day, 6 hours delivery + 2 hours set-up/tear down
+(Delivery = 6 hours
+Prep = 24 hours (6 x 4) - Prep ratio of 4/1
+Set-up/Tear Down = 2 hours
+Total = 32 hours)",1,32,0,0
+Professional Learning Community Comprehensive School Partnership (PLC CSP),PLC sessions ,"6 session per year
+90 minute sessions
+Up to 20 participants
+(Delivery 1.5 hours
+Prep 6 hours (1.5 x 4) - Prep ratio of 4/1
+Total = 7.5 hours)",6,7.5,0,0
+Professional Learning Community Comprehensive School Partnership (PLC CSP),MOY Evaluation,"Survey data aggregation and top sheet creation
+Once yearly",1,2,0,20
+Professional Learning Community Comprehensive School Partnership (PLC CSP),EOY Evaluation,"Survey data aggregation and top sheet creation
+Once yearly",1,2,0,20
+Professional Learning Community Comprehensive School Partnership (PLC CSP),Quarterly Admin Meetings,"1 hour per quarter 
+(1 x 4 = 4)
+(Prep for admin meetings included in PLC prep)",4,2.5,0,0
+Professional Learning Community Comprehensive School Partnership (PLC CSP),"Travel Multiplier 
+(Assumes all in-peson delivery of services: 1 launch workshop + 6 PLC Sessions = 7 trips. Admin Meetings should be coordinated within this time or scheduled virtually)","Low Travel
+Estimated travel time 30 min to 2 hours each way",7,3,0,0
+Professional Learning Community Comprehensive School Partnership (PLC CSP),,"Mid Travel
+Estimated travel time 2 to 6 hours each way",7,8,0,0
+Professional Learning Community Comprehensive School Partnership (PLC CSP),,"High travel
+Estimated travel time 6 to 10 hours each way",7,16,0,0
+Virtual CSP,Yearly launch workshop,"1 day, 6 hours delivery + 2 hours set-up/tear down
+(Delivery = 6 hours
+Prep = 24 hours (6 x 4) - Prep ratio 4/1
+Set-up/Tear Down = 2 hours
+Total = 32 hours)",1,32,0,0
+Virtual CSP,1:1 Coaching,"15 teachers
+8 sessions per teacher
+(15 x 8 =120)",120,2.5,0,0
+Virtual CSP,Deep Dives,"90 min delivery
+In-person aligned with existing coaching schedule OR virtual
+2 sessions included yearly (x2)
+(Delivery = 1.5 hours
+Prep = 6 hours (1.5 x 4) - Prep ratio 4/1
+Total = 7.5 hours",2,7.5,0,0
+Virtual CSP,MOY Evaluation,"Survey data aggregation and top sheet creation
+Once yearly",1,2,0,20
+Virtual CSP,EOY Evaluation,"Survey data aggregation and top sheet creation
+Once yearly",1,2,0,20
+Virtual CSP,Quarterly Admin Meetings,"1 hour per quarter 
+(1 x 4 = 4)
+(Prep for admin meetings included in coaching prep)",4,2.5,0,0
+Virtual CSP,"Travel Multiplier 
+(Assumes all in-person delivery of 1 launch workshop all other programmatic components will be delivered virtually)","Low Travel
+Estimated travel time 30 min to 2 hours each way",1,3,0,0
+Virtual CSP,,"Mid Travel
+Estimated travel time 2 to 6 hours each way",1,8,0,0
+Virtual CSP,,"High travel
+Estimated travel time 6 to 10 hours each way",1,16,0,0
+Changemaker Hub (CMH),CMH Delivery,"1 day - 6 to 7 hours of deivery + 2 hours set-up/tear down
+(Delivery = 6 hours
+Prep = 24 hours (6 x 4) - Prep ratio 4/1
+Set-up/Tear Down = 2 hours
+Total = 32 hours per PLF. MINIMUM 2 PLFs Required = 64 hours)",1,64,0,8
+Changemaker Hub (CMH),CMH Prep and Logistic Coordination,"Up to 6 1-hour meetings with clients
+Eventbrite coordination and monitoring
+Travel coordination
+Event Logistics (Meal prep and Facilities location/rental not included)",1,0,38,0
+Changemaker Hub (CMH),Evaluation,"Survey data aggregation and top sheet creation
+",1,0,0,10
+Changemaker Hub (CMH),"Travel Multiplier 
+(Assumes in-person delivery of 1 Changemaker Hub with 3 staff members)","Low Travel
+Estimated travel time 30 min to 2 hours each way",3,3,0,0
+Changemaker Hub (CMH),,"Mid Travel
+Estimated travel time 2 to 6 hours each way",3,8,0,0
+Changemaker Hub (CMH),,"High travel
+Estimated travel time 6 to 10 hours each way",3,16,0,0
+2 day Leadership Cohort,Workshop Delivery,"2 consecutive days, 12 hours delivery + 2 hours set-up/tear down per day (4 hours total)
+(Delivery = 12 hours
+Prep = 48 hours (12 x 4) - Prep ratio 4/1
+Set-up/Tear Down = 4 hours
+Total = 64 hours)",1,64,0,0
+2 day Leadership Cohort,Evalution,Survey aggregation and data topsheet creation,1,0,0,15
+2 day Leadership Cohort,"Travel Multiplier 
+(Assumes in-person delivery of 1 2 consecutive day launch workshop)","Low Travel
+Estimated travel time 30 min to 2 hours each way",1,3,0,0
+2 day Leadership Cohort,,"Mid Travel
+Estimated travel time 2 to 6 hours each way",1,8,0,0
+2 day Leadership Cohort,,"High travel
+Estimated travel time 6 to 10 hours each way",1,16,0,0
+3 day Leadership Cohort,Workshop Delivery,"2 consecutive days, 12 hours delivery + 2 hours set-up/tear down per day (4 hours total)
+(Delivery = 12 hours
+Prep = 48 hours (12 x 4) - Prep ratio 4/1
+Set-up/Tear Down = 4 hours
+Total = 64 hours)",1,64,0,0
+3 day Leadership Cohort,Evalution,Survey aggregation and data topsheet creation,1,0,0,15
+3 day Leadership Cohort,"Travel Multiplier 
+(Assumes in-person delivery of 3 non-consecutive sessions, requiring 3 overnight trips.)","Low Travel
+Estimated travel time 30 min to 2 hours each way",3,3,0,0
+3 day Leadership Cohort,,"Mid Travel
+Estimated travel time 2 to 6 hours each way",3,8,0,0
+3 day Leadership Cohort,,"High travel
+Estimated travel time 6 to 10 hours each way",3,16,0,0
+"LCE
+**Virtually delivered. If in-person is requested, travel time and cost will need to be factored in.",Design Sprint Sessions ,"6 session per year
+2 hours
+4-5 participants per group (single group is standard)
+(Delivery 1.5 hours
+Prep 6 hours (1.5 x 4) - Prep ratio 4/1
+Total = 7.5 hours)",6,7.5,0,0
+"LCE
+**Virtually delivered. If in-person is requested, travel time and cost will need to be factored in.",Evaluation,Survey aggregation and data topsheet creation,1,0,0,20
+"LCE
+**Virtually delivered. If in-person is requested, travel time and cost will need to be factored in.",Optional 1:1 or small group Coaching,"Added in 4 hour blocks, one hour between each session",4,2.5,0,0
+Readiness Assessment,Instrument Design and Implementation,"Survey Design/Revision (16 hours)
+Survey Administration - Educators, Students, and Community/Caregivers (8 hours)
+Focus Group Design and Revision (8 hours)
+Focus Group Admin (8 hours) *lf FG’s take more than 8 hours, we charge in 4 hour increments @ $165/hr
+Focus Groups should be facilitate virtually. Each participant should have their own device. ",1,0,0,40
+Readiness Assessment,Onsite Observations and Analysis,"Based on 15 teacher sample size
+Observation an analysis of current teacher practice on WS yearly rubrics (estimated at 45 min per teacher, with a cap of 8 teacher/day/PLF. 15x45 min= 11.25 hours)
+Review of curricular and planning documents (estimated at 45 min per teacher x 15 teachers = 11.25 hours)
+Prep and analysis at 1.5/1 ratio (22.5x1.5 = 33.75 hours)
+Total = 56.25, rounded down to 56",1,56,0,0
+Readiness Assessment,Analysis and report creation,"Survey, focus group, and teacher observation data aggregated and report creation = 40 hours",1,0,0,40
+Readiness Assessment,"Travel Multiplier 
+(Assumes in-person delivery of teacher observations for up to 15 teachers. Standard package assumes 2 nights and 3 days travel)","Low Travel
+Estimated travel time 30 min to 2 hours each way",1,3,0,0
+Readiness Assessment,,"Mid Travel
+Estimated travel time 2 to 6 hours each way",1,8,0,0
+Readiness Assessment,,"High travel
+Estimated travel time 6 to 10 hours each way",1,16,0,0
+Capstone Course Creation,1:1 Coaching/Course Creation Consultation,"1 teacher or up to a group of 4 (i.e. grade-level team, department, etc)
+40 hours of consultation/coaching
+(Prep ratio of 1.5/1)",40,2.5,0,0
+Critcal Conversation,Event Facilitation,"3 hours of delivery
+Prep ratio of 1.5/1 --> 3x1.5 = 4.5",1,7.5,0,0
+Critcal Conversation,Internal Meetings,"Coordination, logistics, etc.",1,2,0,0
+Critcal Conversation,"Travel Multiplier 
+(Assumes in-person event for 1 night)","Low Travel
+Estimated travel time 30 min to 2 hours each way",1,3,0,0
+Critcal Conversation,,"Mid Travel
+Estimated travel time 2 to 6 hours each way",1,8,0,0
+Critcal Conversation,,"High travel
+Estimated travel time 6 to 10 hours each way",1,16,0,0
+Stand alone pricing,Coaching/Consultation,1 hour of delivery with 1.5 hours of prep,1,2.5,0,0
+Stand alone pricing,PLC facilitation,1.5 hours of delivery with 6 hours of prep,1,7.5,0,0
+Stand alone pricing,1 day workshop,"1 day, 6 hours delivery + 2 hours set-up/tear down
+(Delivery = 6 hours
+Prep = 24 hours (6 x 4) - Prep ratio 4/1
+Set-up/Tear Down = 2 hours
+Total = 32 hours)",1,32,0,0
