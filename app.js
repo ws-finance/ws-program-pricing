@@ -535,7 +535,7 @@ function createComponentRow(component, programName, componentIndex) {
                 badge.className += ' bg-accent-100 text-accent-800';
             }
 
-            badge.textContent = `${staff}: ${hours}h`;
+            badge.textContent = `${staff}`;
             staffHours.appendChild(badge);
         }
     });
@@ -632,7 +632,7 @@ function renderSelectedProgram(programName) {
     thead.innerHTML = `
         <tr>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Component</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Staff & Hours</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Staff</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quantity</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cost</th>
         </tr>
