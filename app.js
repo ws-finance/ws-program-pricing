@@ -723,6 +723,20 @@ function exportToPDF() {
     URL.revokeObjectURL(url);
 }
 
+// Toggle instructions visibility
+function toggleInstructions() {
+    const content = document.getElementById('instructionsContent');
+    const icon = document.getElementById('instructionsIcon');
+    
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+    } else {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     populateProgramSelector();
