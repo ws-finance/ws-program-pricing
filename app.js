@@ -737,6 +737,20 @@ function toggleInstructions() {
     }
 }
 
+// Toggle travel instructions dropdown
+function toggleTravelInstructions() {
+    const content = document.getElementById('travelInstructionsContent');
+    const icon = document.getElementById('travelInstructionsIcon');
+    if (!content) return;
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+    } else {
+        content.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     populateProgramSelector();
@@ -749,4 +763,186 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('airfare').addEventListener('input', updateTotal);
     document.getElementById('hotel').addEventListener('input', updateTotal);
     document.getElementById('transportation').addEventListener('input', updateTotal);
+
+    // Load travel pricing data and wire up travel calculator
+    loadTravelData();
 });
+
+// --- Travel calculator implementation ---
+let travelRates = [];
+let lodgingDefaults = {};
+let defaultPerDiem = 100;
+let defaultGround = 100;
+
+function parseMoney(str) {
+    if (!str) return 0;
+    return parseFloat(str.toString().replace(/[$,\s\"]/g, '')) || 0;
+}
+
+async function loadTravelData() {
+    try {
+        const res = await fetch('Test - Interim Program Pricing to scale - Travel Pricing.csv');
+        const text = await res.text();
+        const lines = text.split(/\r?\n/).map(l => l.trim());
+
+        // parse sections
+        let section = '';
+        for (let i = 0; i < lines.length; i++) {
+            const parts = lines[i].split(',').map(p => p.replace(/^\"|\"$/g, '').trim());
+            if (!lines[i]) continue;
+            if (/^Airfare/i.test(parts[0])) { section = 'airfare'; continue; }
+            if (/^Hotels & Lodging/i.test(lines[i])) { section = 'hotels'; continue; }
+            if (/^Meals & Incidentals/i.test(lines[i])) { section = 'meals'; continue; }
+            if (/^Transportation/i.test(lines[i])) { section = 'transport'; continue; }
+
+            if (section === 'airfare') {
+                // expect From,To,Amount (Roundtrip),Lodging Per Night
+                if (parts[0] && parts[1] !== undefined && parts[2] !== undefined) {
+                    const from = parts[0];
+                    const to = parts[1];
+                    const amount = parseMoney(parts[2]);
+                    const lodging = parseMoney(parts[3]);
+                    travelRates.push({ from, to, amount, lodging });
+                }
+            } else if (section === 'hotels') {
+                // Location,,Amount per Night,
+                // parts[0] is location, parts[2] amount
+                const loc = parts[0];
+                const amt = parseMoney(parts[2]);
+                if (loc) lodgingDefaults[loc] = amt;
+            } else if (section === 'meals') {
+                // next non-empty line has per diem
+                const val = parseMoney(parts[2] || parts[1] || parts[0]);
+                if (val) defaultPerDiem = val;
+            } else if (section === 'transport') {
+                const val = parseMoney(parts[2] || parts[1] || parts[0]);
+                if (val) defaultGround = val;
+            }
+        }
+
+        populateTravelSelectors();
+    } catch (err) {
+        console.error('Failed to load travel CSV', err);
+    }
+}
+
+function populateTravelSelectors() {
+    const fromSet = new Set();
+    const toSet = new Set();
+    travelRates.forEach(r => { if (r.from) fromSet.add(r.from); if (r.to) toSet.add(r.to); });
+
+    const travelFrom = document.getElementById('travelFrom');
+    const travelTo = document.getElementById('travelTo');
+    travelFrom.innerHTML = '';
+    travelTo.innerHTML = '';
+
+    Array.from(fromSet).forEach(f => {
+        const o = document.createElement('option'); o.value = f; o.textContent = f; travelFrom.appendChild(o);
+    });
+    Array.from(toSet).forEach(t => {
+        const o = document.createElement('option'); o.value = t; o.textContent = t; travelTo.appendChild(o);
+    });
+
+    // set defaults
+    if (travelFrom.options.length) travelFrom.selectedIndex = 0;
+    if (travelTo.options.length) travelTo.selectedIndex = 0;
+
+    // default per diem and ground
+    document.getElementById('travelPerDiem').value = defaultPerDiem;
+    document.getElementById('travelGroundPerDay').value = defaultGround;
+
+    // wire buttons
+    document.getElementById('calculateTravelBtn').addEventListener('click', calculateTravel);
+    document.getElementById('applyTravelBtn').addEventListener('click', applyTravelToSummary);
+    document.getElementById('travelTo').addEventListener('change', onTravelToChange);
+    // update when origin changes as well
+    document.getElementById('travelFrom').addEventListener('change', () => { onTravelToChange(); updateAirfarePreview(); });
+    // lodging region selection affects lodging defaults
+    const lodgingRegionSelect = document.getElementById('lodgingRegion');
+    if (lodgingRegionSelect) {
+        lodgingRegionSelect.addEventListener('change', () => { onTravelToChange(); calculateTravel(); });
+    }
+
+    // initial calc
+    calculateTravel();
+}
+
+function onTravelToChange() {
+    const to = document.getElementById('travelTo').value;
+        const lodgingElem = document.getElementById('lodgingRegion');
+        let lodgingRegion = 'all';
+        if (lodgingElem) {
+            if (lodgingElem.tagName === 'SELECT') lodgingRegion = lodgingElem.value;
+            else if (lodgingElem.type === 'checkbox') lodgingRegion = lodgingElem.checked ? 'NYC/SF' : 'all';
+        }
+    // try to set lodging per night from direct match
+    // common keys in lodgingDefaults: 'All regions ex. NYC/SFO', 'NYC/SF'
+    let lodging = 0;
+    // search travelRates for a matching to lodging
+    const sample = travelRates.find(r => r.to === to && r.lodging);
+    if (sample) lodging = sample.lodging;
+    // fallback to defaults
+    if (!lodging) {
+        if (lodgingRegion === 'NYC/SF' && lodgingDefaults['NYC/SF']) {
+            lodging = lodgingDefaults['NYC/SF'];
+        } else if (lodgingDefaults['All regions ex. NYC/SFO']) {
+            lodging = lodgingDefaults['All regions ex. NYC/SFO'];
+        } else if (lodgingDefaults['NYC/SF']) {
+            lodging = lodgingDefaults['NYC/SF'];
+        } else lodging = 275;
+    }
+    document.getElementById('travelLodgingPerNight').value = lodging;
+    // also update airfare preview whenever travel destination changes
+    updateAirfarePreview();
+}
+
+function updateAirfarePreview() {
+    const from = document.getElementById('travelFrom').value;
+    const to = document.getElementById('travelTo').value;
+    const rate = travelRates.find(r => r.from === from && r.to === to);
+    const perTrip = rate ? rate.amount : 0;
+    document.getElementById('travelAirfarePerTrip').textContent = formatCurrency(perTrip);
+}
+
+function calculateTravel() {
+    const from = document.getElementById('travelFrom').value;
+    const to = document.getElementById('travelTo').value;
+    const perDiem = parseFloat(document.getElementById('travelPerDiem').value) || 0;
+    const trips = parseInt(document.getElementById('travelTrips').value) || 1;
+    const days = parseInt(document.getElementById('travelDays').value) || 0;
+    const plfs = parseInt(document.getElementById('travelPLFs').value) || 0;
+    const lodgingPerNight = parseFloat(document.getElementById('travelLodgingPerNight').value) || 0;
+    const groundPerDay = parseFloat(document.getElementById('travelGroundPerDay').value) || 0;
+
+    // find airfare amount
+    const rate = travelRates.find(r => r.from === from && r.to === to);
+    const airfarePerTrip = rate ? rate.amount : 0;
+
+    const airfareTotal = airfarePerTrip * trips * plfs;
+    const perDiemTotal = perDiem * days * trips * plfs;
+    const lodgingTotal = lodgingPerNight * days * trips * plfs;
+    const groundTotal = groundPerDay * days * trips * plfs;
+
+    const total = airfareTotal + perDiemTotal + lodgingTotal + groundTotal;
+
+    document.getElementById('travelTotal').textContent = formatCurrency(total);
+
+    // also show a preview of airfare/lodging/transport in small attributes
+    document.getElementById('calculateTravelBtn').dataset.airfare = airfareTotal.toFixed(2);
+    document.getElementById('calculateTravelBtn').dataset.lodging = lodgingTotal.toFixed(2);
+    document.getElementById('calculateTravelBtn').dataset.transport = groundTotal.toFixed(2);
+    // update airfare per-trip preview
+    document.getElementById('travelAirfarePerTrip').textContent = formatCurrency(airfarePerTrip);
+}
+
+function applyTravelToSummary() {
+    // take calculated totals and populate summary inputs
+    const airfareTotal = parseFloat(document.getElementById('calculateTravelBtn').dataset.airfare) || 0;
+    const lodgingTotal = parseFloat(document.getElementById('calculateTravelBtn').dataset.lodging) || 0;
+    const transportTotal = parseFloat(document.getElementById('calculateTravelBtn').dataset.transport) || 0;
+
+    document.getElementById('airfare').value = airfareTotal.toFixed(2);
+    document.getElementById('hotel').value = lodgingTotal.toFixed(2);
+    document.getElementById('transportation').value = transportTotal.toFixed(2);
+    updateTotal();
+}
