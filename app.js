@@ -425,6 +425,17 @@ const programData = {
     ]
 };
 
+// Flag to ensure summary panel listeners are only initialized once
+let summaryPanelInitialized = false;
+
+// Holds the user-applied travel totals (when Apply to Additional Costs is used)
+let appliedTravel = {
+    airfare: 0,
+    lodging: 0,
+    transport: 0,
+    meals: 0
+};
+
 // Calculate cost for a component
 function calculateComponentCost(component, quantity) {
     if (quantity === 0) return 0;
@@ -467,32 +478,67 @@ function updateTotal() {
         baseTotal += programTotal;
     });
 
-    // Apply indirect rate and markup
-    const indirectRate = parseFloat(document.getElementById('indirectRate').value) || 0;
-    const markupRate = parseFloat(document.getElementById('markup').value) || 0;
+    // Apply indirect rate and markup (guard element access because
+    // the summary panel may not exist yet in some timing scenarios)
+    const indirectEl = document.getElementById('indirectRate');
+    const markupEl = document.getElementById('markup');
+    const indirectRate = indirectEl ? (parseFloat(indirectEl.value) || 0) : 0;
+    const markupRate = markupEl ? (parseFloat(markupEl.value) || 0) : 0;
 
-    // Add additional costs
-    const airfare = parseFloat(document.getElementById('airfare').value) || 0;
-    const hotel = parseFloat(document.getElementById('hotel').value) || 0;
-    const transportation = parseFloat(document.getElementById('transportation').value) || 0;
-    const additionalCosts = airfare + hotel + transportation;
+    // Add additional costs (guard each input; default to 0 if missing)
+    // Prefer explicit input fields if present (legacy), otherwise use the
+    // values the user applied from the travel calculator (appliedTravel).
+    const airfareEl = document.getElementById('airfare');
+    const hotelEl = document.getElementById('hotel');
+    const transportationEl = document.getElementById('transportation');
+    const mealsEl = document.getElementById('mealsPerDiem');
+    const airfare = airfareEl ? (parseFloat(airfareEl.value) || 0) : (appliedTravel.airfare || 0);
+    const hotel = hotelEl ? (parseFloat(hotelEl.value) || 0) : (appliedTravel.lodging || 0);
+    const transportation = transportationEl ? (parseFloat(transportationEl.value) || 0) : (appliedTravel.transport || 0);
+    const mealsPerDiem = mealsEl ? (parseFloat(mealsEl.value) || 0) : (appliedTravel.meals || 0);
+    const additionalCosts = airfare + hotel + transportation + mealsPerDiem;
 
-    // Apply indirect rate to both base cost and additional costs
-    const indirectCost = (baseTotal + additionalCosts) * (indirectRate / 100);
-    const markupCost = (baseTotal + additionalCosts + indirectCost) * (markupRate / 100);
-    const subtotal = baseTotal + additionalCosts + indirectCost + markupCost;
-    const grandTotal = subtotal;
+    // Update travel summary display if present
+    const travelSummaryEl = document.getElementById('travelSummary');
+    if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(additionalCosts);
 
-    // Update display
-    document.getElementById('baseCost').textContent = formatCurrency(baseTotal);
-    document.getElementById('indirectCost').textContent = formatCurrency(indirectCost);
-    document.getElementById('markupCost').textContent = formatCurrency(markupCost);
-    document.getElementById('subtotal').textContent = formatCurrency(subtotal);
-    document.getElementById('totalAmount').textContent = formatCurrency(grandTotal);
+    // Update individual travel breakdown elements (guarded)
+    const airfareSummaryEl = document.getElementById('airfareSummary');
+    const hotelSummaryEl = document.getElementById('hotelSummary');
+    const transportSummaryEl = document.getElementById('transportSummary');
+    const mealsSummaryEl = document.getElementById('mealsSummary');
+    if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(airfare);
+    if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(hotel);
+    if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(transportation);
+    if (mealsSummaryEl) mealsSummaryEl.textContent = formatCurrency(mealsPerDiem);
+
+    // Apply indirect and markup only to the base cost (travel/additional
+    // costs are not subject to indirect or markup). Then add additional
+    // costs to the final total after subtotal.
+    const indirectCost = baseTotal * (indirectRate / 100);
+    const markupCost = (baseTotal + indirectCost) * (markupRate / 100);
+    const subtotal = baseTotal + indirectCost + markupCost;
+    const grandTotal = subtotal + additionalCosts;
+
+    // Update display (guard writes in case panel elements are not present)
+    const baseCostEl = document.getElementById('baseCost');
+    const indirectCostEl = document.getElementById('indirectCost');
+    const markupCostEl = document.getElementById('markupCost');
+    const subtotalEl = document.getElementById('subtotal');
+    const totalAmountEl = document.getElementById('totalAmount');
+    if (baseCostEl) baseCostEl.textContent = formatCurrency(baseTotal);
+    if (indirectCostEl) indirectCostEl.textContent = formatCurrency(indirectCost);
+    if (markupCostEl) markupCostEl.textContent = formatCurrency(markupCost);
+    if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
+    if (totalAmountEl) totalAmountEl.textContent = formatCurrency(grandTotal);
 }// Create component row
 function createComponentRow(component, programName, componentIndex) {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-slate-50 transition-colors';
+
+    if (component.isTravel) {
+        tr.classList.add('bg-blue-50');
+    }
 
     // Component name and description
     const tdComponent = document.createElement('td');
@@ -546,34 +592,52 @@ function createComponentRow(component, programName, componentIndex) {
     // Quantity input
     const tdQuantity = document.createElement('td');
     tdQuantity.className = 'px-6 py-4';
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.className = 'w-16 px-2 py-1 text-sm border border-slate-300 rounded focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
-    input.min = '0';
-    input.value = component.multiplier.toString();
-    input.dataset.program = programName;
-    input.dataset.component = componentIndex;
+    const qtyInput = document.createElement('input');
+    qtyInput.type = 'number';
+    qtyInput.className = 'quantity-input w-16 px-2 py-1 text-sm border border-slate-300 rounded focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
+    qtyInput.min = '0';
+    // keep existing data model: component.multiplier currently holds the
+    // default "quantity" value for the component (e.g. 120 for coaching).
+    qtyInput.value = component.multiplier.toString();
+    qtyInput.dataset.program = programName;
+    qtyInput.dataset.component = componentIndex;
 
-    input.addEventListener('input', (e) => {
-        const quantity = parseInt(e.target.value) || 0;
-        const cost = calculateComponentCost(component, quantity);
-        const costCell = e.target.closest('tr').querySelector('.cost-cell');
-        costCell.textContent = formatCurrency(cost);
-        updateTotal();
-    });
-
-    tdQuantity.appendChild(input);
+    tdQuantity.appendChild(qtyInput);
     tr.appendChild(tdQuantity);
+
+    // Multiplier input (new column) - multiplies the quantity to compute cost
+    const tdMultiplier = document.createElement('td');
+    tdMultiplier.className = 'px-6 py-4';
+    const multInput = document.createElement('input');
+    multInput.type = 'number';
+    multInput.className = 'multiplier-input w-16 px-2 py-1 text-sm border border-slate-300 rounded focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
+    multInput.min = '0';
+    multInput.step = '1';
+    multInput.value = '1'; // default multiplier is 1
+    tdMultiplier.appendChild(multInput);
+    tr.appendChild(tdMultiplier);
 
     // Cost
     const tdCost = document.createElement('td');
     tdCost.className = 'px-6 py-4 cost-cell text-sm font-medium text-slate-900 text-right';
     tr.appendChild(tdCost);
 
+    // Helper to recompute cost for this row
+    function recomputeRowCost() {
+        const q = parseFloat(qtyInput.value) || 0;
+        const m = parseFloat(multInput.value) || 1;
+        const effectiveQty = q * m;
+        const cost = calculateComponentCost(component, effectiveQty);
+        tdCost.textContent = formatCurrency(cost);
+        updateTotal();
+    }
+
+    // Wire inputs
+    qtyInput.addEventListener('input', recomputeRowCost);
+    multInput.addEventListener('input', recomputeRowCost);
+
     // Calculate initial cost
-    const initialQuantity = parseInt(input.value) || 0;
-    const initialCost = calculateComponentCost(component, initialQuantity);
-    tdCost.textContent = formatCurrency(initialCost);
+    recomputeRowCost();
 
     return tr;
 }
@@ -607,6 +671,27 @@ function renderSelectedProgram(programName) {
     const container = document.getElementById('programsContainer');
     container.innerHTML = ''; // Clear previous
 
+    // Show summary panel and hide empty state
+    document.getElementById('summaryPanel').classList.remove('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+
+    // Reset travel form
+    document.getElementById('travelFrom').selectedIndex = 0;
+    document.getElementById('travelTo').selectedIndex = 0;
+    document.getElementById('travelPerDiem').value = defaultPerDiem;
+    document.getElementById('travelTrips').value = 1;
+    document.getElementById('travelDays').value = 1;
+    document.getElementById('travelPLFs').value = 1;
+    document.getElementById('travelGroundPerDay').value = defaultGround;
+    document.getElementById('lodgingRegion').checked = false;
+    onTravelToChange();
+    calculateTravel();
+    // Do not auto-apply travel totals into the summary here; wait for the
+    // user to confirm via the "Apply to Additional Costs" button. This
+    // avoids attempting to write into summary inputs before their
+    // listeners/initialization are complete.
+
+
     const components = programData[programName];
 
     const section = document.createElement('div');
@@ -634,6 +719,7 @@ function renderSelectedProgram(programName) {
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Component</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Staff</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quantity</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Multiplier</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Cost</th>
         </tr>
     `;
@@ -662,6 +748,9 @@ function renderSelectedProgram(programName) {
     document.getElementById('summaryPanel').classList.remove('hidden');
     document.getElementById('emptyState').classList.add('hidden');
 
+    // Initialize summary panel listeners once (safely after panel exists)
+    if (!summaryPanelInitialized) initializeSummaryPanel();
+
     // Update total for initial values
     updateTotal();
 }
@@ -684,29 +773,37 @@ function exportToPDF() {
     exportText += `${programName}\n${'='.repeat(60)}\n`;
 
     section.querySelectorAll('tbody tr').forEach(row => {
-        const quantity = parseInt(row.querySelector('input[type="number"]').value) || 0;
+        const qtyEl = row.querySelector('.quantity-input');
+        const multEl = row.querySelector('.multiplier-input');
+        const quantity = parseFloat(qtyEl?.value) || 0;
+        const multiplier = parseFloat(multEl?.value) || 1;
         if (quantity > 0) {
             const component = row.querySelector('td:first-child div:first-child').textContent;
             const cost = row.querySelector('.cost-cell').textContent;
-            exportText += `${component} (Qty: ${quantity}): ${cost}\n`;
+            exportText += `${component} (Qty: ${quantity} × ${multiplier}): ${cost}\n`;
         }
     });
 
     exportText += `\n${'='.repeat(60)}\n`;
     exportText += `Base Cost: ${document.getElementById('baseCost').textContent}\n`;
-    exportText += `Additional Costs: $${((parseFloat(document.getElementById('airfare').value) || 0) + (parseFloat(document.getElementById('hotel').value) || 0) + (parseFloat(document.getElementById('transportation').value) || 0)).toFixed(2)}\n`;
-    exportText += `Indirect Cost (${document.getElementById('indirectRate').value}% on Base + Additional): ${document.getElementById('indirectCost').textContent}\n`;
-    exportText += `Markup (${document.getElementById('markup').value}%): ${document.getElementById('markupCost').textContent}\n`;
-    exportText += `Subtotal: ${document.getElementById('subtotal').textContent}\n\n`;
+    // Safely read additional costs: prefer explicit inputs if present, else
+    // fallback to appliedTravel values filled by the Apply action.
+    const airfareVal = parseFloat(document.getElementById('airfare')?.value) || appliedTravel.airfare || 0;
+    const hotelVal = parseFloat(document.getElementById('hotel')?.value) || appliedTravel.lodging || 0;
+    const transportVal = parseFloat(document.getElementById('transportation')?.value) || appliedTravel.transport || 0;
+    const mealsVal = parseFloat(document.getElementById('mealsPerDiem')?.value) || appliedTravel.meals || 0;
+    const additionalTotal = airfareVal + hotelVal + transportVal + mealsVal;
+
+    exportText += `Additional Costs: $${additionalTotal.toFixed(2)}\n`;
+    exportText += `Indirect Cost (${document.getElementById('indirectRate').value}% on Base): ${document.getElementById('indirectCost').textContent}\n`;
+    exportText += `Markup (${document.getElementById('markup').value}% on Base+Indirect): ${document.getElementById('markupCost').textContent}\n`;
+    exportText += `Subtotal (Base + Indirect + Markup): ${document.getElementById('subtotal').textContent}\n\n`;
 
     exportText += `Additional Cost Breakdown:\n`;
-    exportText += `Airfare: $${(parseFloat(document.getElementById('airfare').value) || 0).toFixed(2)}\n`;
-    exportText += `Hotel: $${(parseFloat(document.getElementById('hotel').value) || 0).toFixed(2)}\n`;
-    exportText += `Transportation: $${(parseFloat(document.getElementById('transportation').value) || 0).toFixed(2)}\n`;
-
-    const additionalTotal = (parseFloat(document.getElementById('airfare').value) || 0) +
-                           (parseFloat(document.getElementById('hotel').value) || 0) +
-                           (parseFloat(document.getElementById('transportation').value) || 0);
+    exportText += `Airfare: $${airfareVal.toFixed(2)}\n`;
+    exportText += `Hotel: $${hotelVal.toFixed(2)}\n`;
+    exportText += `Transportation: $${transportVal.toFixed(2)}\n`;
+    exportText += `Meals / Per Diem: $${mealsVal.toFixed(2)}\n`;
     exportText += `Additional Total: $${additionalTotal.toFixed(2)}\n\n`;
 
     exportText += `${'='.repeat(60)}\nGRAND TOTAL: ${document.getElementById('totalAmount').textContent}\n`;
@@ -753,20 +850,85 @@ function toggleTravelInstructions() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Populate program selector and load travel data. Event listeners for
+    // inputs inside the summary panel are attached lazily the first time
+    // the panel is shown (see initializeSummaryPanel).
     populateProgramSelector();
-
-    // Add event listeners for rate and markup inputs
-    document.getElementById('indirectRate').addEventListener('input', updateTotal);
-    document.getElementById('markup').addEventListener('input', updateTotal);
-
-    // Add event listeners for additional cost inputs
-    document.getElementById('airfare').addEventListener('input', updateTotal);
-    document.getElementById('hotel').addEventListener('input', updateTotal);
-    document.getElementById('transportation').addEventListener('input', updateTotal);
-
-    // Load travel pricing data and wire up travel calculator
     loadTravelData();
 });
+
+// Initialize all event listeners that depend on the summary panel being
+// present in the DOM. This is called once when a program is selected and
+// the summary panel is first displayed.
+function initializeSummaryPanel() {
+    if (summaryPanelInitialized) return;
+
+    // Add event listeners for rate and markup inputs
+    const indirectEl = document.getElementById('indirectRate');
+    const markupEl = document.getElementById('markup');
+    if (indirectEl) indirectEl.addEventListener('input', updateTotal);
+    if (markupEl) markupEl.addEventListener('input', updateTotal);
+
+    // Add event listeners for additional cost inputs
+    const airfareEl = document.getElementById('airfare');
+    const hotelEl = document.getElementById('hotel');
+    const transportEl = document.getElementById('transportation');
+    const mealsEl = document.getElementById('mealsPerDiem');
+    if (airfareEl) airfareEl.addEventListener('input', updateTotal);
+    if (hotelEl) hotelEl.addEventListener('input', updateTotal);
+    if (transportEl) transportEl.addEventListener('input', updateTotal);
+    if (mealsEl) mealsEl.addEventListener('input', updateTotal);
+
+    // Wire up travel calculator controls (they live inside the summary panel)
+    const calcBtn = document.getElementById('calculateTravelBtn');
+    const applyBtn = document.getElementById('applyTravelBtn');
+    const travelTo = document.getElementById('travelTo');
+    const travelFrom = document.getElementById('travelFrom');
+    const lodgingRegionSelect = document.getElementById('lodgingRegion');
+
+    if (calcBtn) calcBtn.addEventListener('click', calculateTravel);
+    if (applyBtn) applyBtn.addEventListener('click', applyTravelToSummary);
+    const clearBtn = document.getElementById('clearTravelBtn');
+    if (clearBtn) clearBtn.addEventListener('click', clearTravel);
+    if (travelTo) travelTo.addEventListener('change', onTravelToChange);
+    if (travelFrom) travelFrom.addEventListener('change', () => { onTravelToChange(); updateAirfarePreview(); });
+    if (lodgingRegionSelect) lodgingRegionSelect.addEventListener('change', () => { onTravelToChange(); calculateTravel(); });
+
+    summaryPanelInitialized = true;
+}
+
+// Clear applied travel totals (does not change the travel input fields)
+function clearTravel() {
+    appliedTravel.airfare = 0;
+    appliedTravel.lodging = 0;
+    appliedTravel.transport = 0;
+    appliedTravel.meals = 0;
+
+    // Clear datasets on calculate button (if present)
+    const calcBtn = document.getElementById('calculateTravelBtn');
+    if (calcBtn) {
+        calcBtn.dataset.airfare = '0';
+        calcBtn.dataset.lodging = '0';
+        calcBtn.dataset.transport = '0';
+        calcBtn.dataset.perdiem = '0';
+    }
+
+    // Update UI spans to zero
+    const airfareSummaryEl = document.getElementById('airfareSummary');
+    const hotelSummaryEl = document.getElementById('hotelSummary');
+    const transportSummaryEl = document.getElementById('transportSummary');
+    const mealsSummaryEl = document.getElementById('mealsSummary');
+    const travelSummaryEl = document.getElementById('travelSummary');
+    const travelTotalEl = document.getElementById('travelTotal');
+    if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(0);
+    if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(0);
+    if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(0);
+    if (mealsSummaryEl) mealsSummaryEl.textContent = formatCurrency(0);
+    if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(0);
+    if (travelTotalEl) travelTotalEl.textContent = formatCurrency(0);
+
+    updateTotal();
+}
 
 // --- Travel calculator implementation ---
 let travelRates = [];
@@ -851,19 +1013,9 @@ function populateTravelSelectors() {
     document.getElementById('travelPerDiem').value = defaultPerDiem;
     document.getElementById('travelGroundPerDay').value = defaultGround;
 
-    // wire buttons
-    document.getElementById('calculateTravelBtn').addEventListener('click', calculateTravel);
-    document.getElementById('applyTravelBtn').addEventListener('click', applyTravelToSummary);
-    document.getElementById('travelTo').addEventListener('change', onTravelToChange);
-    // update when origin changes as well
-    document.getElementById('travelFrom').addEventListener('change', () => { onTravelToChange(); updateAirfarePreview(); });
-    // lodging region selection affects lodging defaults
-    const lodgingRegionSelect = document.getElementById('lodgingRegion');
-    if (lodgingRegionSelect) {
-        lodgingRegionSelect.addEventListener('change', () => { onTravelToChange(); calculateTravel(); });
-    }
-
-    // initial calc
+    // initial calc (do not attach DOM listeners here; they are attached
+    // lazily when the summary panel is first shown via
+    // initializeSummaryPanel())
     calculateTravel();
 }
 
@@ -919,7 +1071,7 @@ function calculateTravel() {
     const airfarePerTrip = rate ? rate.amount : 0;
 
     const airfareTotal = airfarePerTrip * trips * plfs;
-    const perDiemTotal = perDiem * days * trips * plfs;
+    const perDiemTotal = perDiem * (days + 1) * trips * plfs; // Per diem is for nights + 1
     const lodgingTotal = lodgingPerNight * days * trips * plfs;
     const groundTotal = groundPerDay * days * trips * plfs;
 
@@ -931,18 +1083,36 @@ function calculateTravel() {
     document.getElementById('calculateTravelBtn').dataset.airfare = airfareTotal.toFixed(2);
     document.getElementById('calculateTravelBtn').dataset.lodging = lodgingTotal.toFixed(2);
     document.getElementById('calculateTravelBtn').dataset.transport = groundTotal.toFixed(2);
+    document.getElementById('calculateTravelBtn').dataset.perdiem = perDiemTotal.toFixed(2);
     // update airfare per-trip preview
     document.getElementById('travelAirfarePerTrip').textContent = formatCurrency(airfarePerTrip);
 }
 
 function applyTravelToSummary() {
-    // take calculated totals and populate summary inputs
-    const airfareTotal = parseFloat(document.getElementById('calculateTravelBtn').dataset.airfare) || 0;
-    const lodgingTotal = parseFloat(document.getElementById('calculateTravelBtn').dataset.lodging) || 0;
-    const transportTotal = parseFloat(document.getElementById('calculateTravelBtn').dataset.transport) || 0;
+    // Read calculated totals from the Calculate button dataset and store them
+    // in the appliedTravel object. Then update the visible summary lines and
+    // recalc totals.
+    const airfareTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.airfare) || 0;
+    const lodgingTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.lodging) || 0;
+    const transportTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.transport) || 0;
+    const perDiemTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.perdiem) || 0;
 
-    document.getElementById('airfare').value = airfareTotal.toFixed(2);
-    document.getElementById('hotel').value = lodgingTotal.toFixed(2);
-    document.getElementById('transportation').value = transportTotal.toFixed(2);
+    appliedTravel.airfare = airfareTotal;
+    appliedTravel.lodging = lodgingTotal;
+    appliedTravel.transport = transportTotal;
+    appliedTravel.meals = perDiemTotal;
+
+    // Update summary display spans (they will be used by updateTotal too)
+    const airfareSummaryEl = document.getElementById('airfareSummary');
+    const hotelSummaryEl = document.getElementById('hotelSummary');
+    const transportSummaryEl = document.getElementById('transportSummary');
+    const mealsSummaryEl = document.getElementById('mealsSummary');
+    const travelSummaryEl = document.getElementById('travelSummary');
+    if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(airfareTotal);
+    if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(lodgingTotal);
+    if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(transportTotal);
+    if (mealsSummaryEl) mealsSummaryEl.textContent = formatCurrency(perDiemTotal);
+    if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(airfareTotal + lodgingTotal + transportTotal + perDiemTotal);
+
     updateTotal();
 }
