@@ -675,17 +675,26 @@ function renderSelectedProgram(programName) {
     document.getElementById('summaryPanel').classList.remove('hidden');
     document.getElementById('emptyState').classList.add('hidden');
 
-    // Reset travel form
-    document.getElementById('travelFrom').selectedIndex = 0;
-    document.getElementById('travelTo').selectedIndex = 0;
-    document.getElementById('travelPerDiem').value = defaultPerDiem;
-    document.getElementById('travelTrips').value = 1;
-    document.getElementById('travelDays').value = 1;
-    document.getElementById('travelPLFs').value = 1;
-    document.getElementById('travelGroundPerDay').value = defaultGround;
-    document.getElementById('lodgingRegion').checked = false;
-    onTravelToChange();
-    calculateTravel();
+    // Reset travel form (guard each element because summary panel may be
+    // missing in some render/timing/CSP scenarios in certain browsers)
+    const travelFromEl = document.getElementById('travelFrom');
+    const travelToEl = document.getElementById('travelTo');
+    const travelPerDiemEl = document.getElementById('travelPerDiem');
+    const travelTripsEl = document.getElementById('travelTrips');
+    const travelDaysEl = document.getElementById('travelDays');
+    const travelPLFsEl = document.getElementById('travelPLFs');
+    const travelGroundEl = document.getElementById('travelGroundPerDay');
+    const lodgingRegionEl = document.getElementById('lodgingRegion');
+    if (travelFromEl) travelFromEl.selectedIndex = 0;
+    if (travelToEl) travelToEl.selectedIndex = 0;
+    if (travelPerDiemEl) travelPerDiemEl.value = defaultPerDiem;
+    if (travelTripsEl) travelTripsEl.value = 1;
+    if (travelDaysEl) travelDaysEl.value = 1;
+    if (travelPLFsEl) travelPLFsEl.value = 1;
+    if (travelGroundEl) travelGroundEl.value = defaultGround;
+    if (lodgingRegionEl) lodgingRegionEl.checked = false;
+    if (typeof onTravelToChange === 'function' && (travelToEl || travelFromEl || lodgingRegionEl)) onTravelToChange();
+    if (typeof calculateTravel === 'function' && (travelFromEl || travelToEl)) calculateTravel();
     // Do not auto-apply travel totals into the summary here; wait for the
     // user to confirm via the "Apply to Additional Costs" button. This
     // avoids attempting to write into summary inputs before their
@@ -995,23 +1004,25 @@ function populateTravelSelectors() {
 
     const travelFrom = document.getElementById('travelFrom');
     const travelTo = document.getElementById('travelTo');
-    travelFrom.innerHTML = '';
-    travelTo.innerHTML = '';
+    if (travelFrom) travelFrom.innerHTML = '';
+    if (travelTo) travelTo.innerHTML = '';
 
     Array.from(fromSet).forEach(f => {
-        const o = document.createElement('option'); o.value = f; o.textContent = f; travelFrom.appendChild(o);
+        const o = document.createElement('option'); o.value = f; o.textContent = f; if (travelFrom) travelFrom.appendChild(o);
     });
     Array.from(toSet).forEach(t => {
-        const o = document.createElement('option'); o.value = t; o.textContent = t; travelTo.appendChild(o);
+        const o = document.createElement('option'); o.value = t; o.textContent = t; if (travelTo) travelTo.appendChild(o);
     });
 
     // set defaults
-    if (travelFrom.options.length) travelFrom.selectedIndex = 0;
-    if (travelTo.options.length) travelTo.selectedIndex = 0;
+    if (travelFrom && travelFrom.options.length) travelFrom.selectedIndex = 0;
+    if (travelTo && travelTo.options.length) travelTo.selectedIndex = 0;
 
-    // default per diem and ground
-    document.getElementById('travelPerDiem').value = defaultPerDiem;
-    document.getElementById('travelGroundPerDay').value = defaultGround;
+    // default per diem and ground (guard elements)
+    const travelPerDiemEl = document.getElementById('travelPerDiem');
+    const travelGroundEl = document.getElementById('travelGroundPerDay');
+    if (travelPerDiemEl) travelPerDiemEl.value = defaultPerDiem;
+    if (travelGroundEl) travelGroundEl.value = defaultGround;
 
     // initial calc (do not attach DOM listeners here; they are attached
     // lazily when the summary panel is first shown via
@@ -1020,13 +1031,15 @@ function populateTravelSelectors() {
 }
 
 function onTravelToChange() {
-    const to = document.getElementById('travelTo').value;
-        const lodgingElem = document.getElementById('lodgingRegion');
-        let lodgingRegion = 'all';
-        if (lodgingElem) {
-            if (lodgingElem.tagName === 'SELECT') lodgingRegion = lodgingElem.value;
-            else if (lodgingElem.type === 'checkbox') lodgingRegion = lodgingElem.checked ? 'NYC/SF' : 'all';
-        }
+    const travelToEl = document.getElementById('travelTo');
+    const lodgingElem = document.getElementById('lodgingRegion');
+    if (!travelToEl) return; // nothing to do if selector missing
+    const to = travelToEl.value;
+    let lodgingRegion = 'all';
+    if (lodgingElem) {
+        if (lodgingElem.tagName === 'SELECT') lodgingRegion = lodgingElem.value;
+        else if (lodgingElem.type === 'checkbox') lodgingRegion = lodgingElem.checked ? 'NYC/SF' : 'all';
+    }
     // try to set lodging per night from direct match
     // common keys in lodgingDefaults: 'All regions ex. NYC/SFO', 'NYC/SF'
     let lodging = 0;
@@ -1043,28 +1056,45 @@ function onTravelToChange() {
             lodging = lodgingDefaults['NYC/SF'];
         } else lodging = 275;
     }
-    document.getElementById('travelLodgingPerNight').value = lodging;
+    const travelLodgingEl = document.getElementById('travelLodgingPerNight');
+    if (travelLodgingEl) travelLodgingEl.value = lodging;
     // also update airfare preview whenever travel destination changes
     updateAirfarePreview();
 }
 
 function updateAirfarePreview() {
-    const from = document.getElementById('travelFrom').value;
-    const to = document.getElementById('travelTo').value;
+    const travelFromEl = document.getElementById('travelFrom');
+    const travelToEl = document.getElementById('travelTo');
+    const airfarePreviewEl = document.getElementById('travelAirfarePerTrip');
+    if (!travelFromEl || !travelToEl || !airfarePreviewEl) return;
+    const from = travelFromEl.value;
+    const to = travelToEl.value;
     const rate = travelRates.find(r => r.from === from && r.to === to);
     const perTrip = rate ? rate.amount : 0;
-    document.getElementById('travelAirfarePerTrip').textContent = formatCurrency(perTrip);
+    airfarePreviewEl.textContent = formatCurrency(perTrip);
 }
 
 function calculateTravel() {
-    const from = document.getElementById('travelFrom').value;
-    const to = document.getElementById('travelTo').value;
-    const perDiem = parseFloat(document.getElementById('travelPerDiem').value) || 0;
-    const trips = parseInt(document.getElementById('travelTrips').value) || 1;
-    const days = parseInt(document.getElementById('travelDays').value) || 0;
-    const plfs = parseInt(document.getElementById('travelPLFs').value) || 0;
-    const lodgingPerNight = parseFloat(document.getElementById('travelLodgingPerNight').value) || 0;
-    const groundPerDay = parseFloat(document.getElementById('travelGroundPerDay').value) || 0;
+    const travelFromEl = document.getElementById('travelFrom');
+    const travelToEl = document.getElementById('travelTo');
+    const perDiemEl = document.getElementById('travelPerDiem');
+    const tripsEl = document.getElementById('travelTrips');
+    const daysEl = document.getElementById('travelDays');
+    const plfsEl = document.getElementById('travelPLFs');
+    const lodgingPerNightEl = document.getElementById('travelLodgingPerNight');
+    const groundPerDayEl = document.getElementById('travelGroundPerDay');
+
+    // If core inputs are missing, bail out safely
+    if (!travelFromEl || !travelToEl) return;
+
+    const from = travelFromEl.value;
+    const to = travelToEl.value;
+    const perDiem = parseFloat(perDiemEl?.value) || 0;
+    const trips = parseInt(tripsEl?.value) || 1;
+    const days = parseInt(daysEl?.value) || 0;
+    const plfs = parseInt(plfsEl?.value) || 0;
+    const lodgingPerNight = parseFloat(lodgingPerNightEl?.value) || 0;
+    const groundPerDay = parseFloat(groundPerDayEl?.value) || 0;
 
     // find airfare amount
     const rate = travelRates.find(r => r.from === from && r.to === to);
@@ -1077,15 +1107,20 @@ function calculateTravel() {
 
     const total = airfareTotal + perDiemTotal + lodgingTotal + groundTotal;
 
-    document.getElementById('travelTotal').textContent = formatCurrency(total);
+    const travelTotalEl = document.getElementById('travelTotal');
+    if (travelTotalEl) travelTotalEl.textContent = formatCurrency(total);
 
     // also show a preview of airfare/lodging/transport in small attributes
-    document.getElementById('calculateTravelBtn').dataset.airfare = airfareTotal.toFixed(2);
-    document.getElementById('calculateTravelBtn').dataset.lodging = lodgingTotal.toFixed(2);
-    document.getElementById('calculateTravelBtn').dataset.transport = groundTotal.toFixed(2);
-    document.getElementById('calculateTravelBtn').dataset.perdiem = perDiemTotal.toFixed(2);
+    const calcBtn = document.getElementById('calculateTravelBtn');
+    if (calcBtn) {
+        calcBtn.dataset.airfare = airfareTotal.toFixed(2);
+        calcBtn.dataset.lodging = lodgingTotal.toFixed(2);
+        calcBtn.dataset.transport = groundTotal.toFixed(2);
+        calcBtn.dataset.perdiem = perDiemTotal.toFixed(2);
+    }
     // update airfare per-trip preview
-    document.getElementById('travelAirfarePerTrip').textContent = formatCurrency(airfarePerTrip);
+    const airfarePreviewEl = document.getElementById('travelAirfarePerTrip');
+    if (airfarePreviewEl) airfarePreviewEl.textContent = formatCurrency(airfarePerTrip);
 }
 
 function applyTravelToSummary() {
