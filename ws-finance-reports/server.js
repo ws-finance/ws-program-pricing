@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const IntuitOAuth = require('intuit-oauth');
 
 const app = express();
 app.use(express.json());
@@ -20,6 +21,17 @@ if (!CLIENT_ID || !CLIENT_SECRET || !REDIRECT_URI) {
 }
 
 const TOKEN_FILE = path.join(__dirname, 'tokens.json');
+
+function getOauthClient(tokens) {
+    const oauthClient = new IntuitOAuth({
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        environment: ENV === 'production' ? 'Production' : 'Sandbox',
+        redirectUri: REDIRECT_URI
+    });
+    if (tokens) oauthClient.token = tokens;
+    return oauthClient;
+}
 
 function saveTokens(tokens) {
     fs.writeFileSync(TOKEN_FILE, JSON.stringify(tokens, null, 2));
@@ -62,10 +74,11 @@ app.get('/__health', (req, res) => {
 
 app.get('/auth', (req, res) => {
     const state = crypto.randomBytes(16).toString('hex');
-    // store state in memory - for simple demo only
-    res.cookie = res.cookie || ((k,v)=>{});
-    // redirect user to Intuit authorize page
-    res.redirect(getAuthUrl(state));
+    const oauthClient = getOauthClient();
+    // build authorize URL via SDK
+    const authUri = oauthClient.authorizeUri({ scope: 'com.intuit.quickbooks.accounting', state });
+    console.log('Redirecting user to Intuit authorize URL:', authUri);
+    res.redirect(authUri);
 });
 
 // OAuth callback - exchange code for tokens
@@ -78,65 +91,36 @@ app.get('/callback', async (req, res) => {
     }
 
     try {
-        const basicAuth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
-        const params = new URLSearchParams();
-        params.append('grant_type', 'authorization_code');
-        params.append('code', code);
-        params.append('redirect_uri', REDIRECT_URI);
-
-        const tokenResp = await fetch(TOKEN_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Basic ${basicAuth}`,
-                'Accept': 'application/json',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: params.toString()
-        });
-        const tokenJson = await tokenResp.json();
-        if (tokenResp.status >= 400) {
-            console.error('Token exchange failed', tokenJson);
-            return res.status(500).json({ error: 'Token exchange failed', details: tokenJson });
-        }
-
-        // store tokens and realmId (company id)
-        const tokens = {
-            ...tokenJson,
-            realmId: realmId || COMPANY_ID
-        };
+        const oauthClient = getOauthClient();
+        // Use SDK to exchange code for tokens
+        const tokenResponse = await oauthClient.createToken(req.url);
+        // oauthClient.token is now populated
+        const tokens = oauthClient.token || {};
+        tokens.realmId = realmId || COMPANY_ID || tokens.realmId;
         saveTokens(tokens);
 
         res.send(`<p>Connected. RealmId: ${tokens.realmId || 'unknown'}</p><p>Tokens saved to server. You can now call <code>/reports/general-ledger</code>.</p>`);
     } catch (err) {
-        console.error('Callback error', err);
-        res.status(500).send('Callback error: ' + err.message);
+        console.error('Callback error (SDK)', err);
+        // If SDK returned a parsed error object, try to show the JSON
+        const msg = err && err.message ? err.message : JSON.stringify(err);
+        res.status(500).send('Callback error: ' + msg);
     }
 });
 
 async function refreshAccessToken(tokens) {
     if (!tokens || !tokens.refresh_token) throw new Error('No refresh token available');
-    const basicAuth = Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
-    const params = new URLSearchParams();
-    params.append('grant_type', 'refresh_token');
-    params.append('refresh_token', tokens.refresh_token);
-
-    const resp = await fetch(TOKEN_URL, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Basic ${basicAuth}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: params.toString()
-    });
-    const json = await resp.json();
-    if (resp.status >= 400) {
-        throw new Error('Refresh failed: ' + JSON.stringify(json));
+    const oauthClient = getOauthClient(tokens);
+    try {
+        const refreshed = await oauthClient.refresh();
+        const newTokens = oauthClient.token || refreshed;
+        // preserve realmId if present
+        if (tokens.realmId && !newTokens.realmId) newTokens.realmId = tokens.realmId;
+        saveTokens(newTokens);
+        return newTokens;
+    } catch (err) {
+        throw new Error('Refresh failed (SDK): ' + (err && err.message ? err.message : JSON.stringify(err)));
     }
-    // Intuit returns a new refresh_token sometimes, merge
-    const merged = Object.assign({}, tokens, json);
-    saveTokens(merged);
-    return merged;
 }
 
 async function getValidTokens() {
