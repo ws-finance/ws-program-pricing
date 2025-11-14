@@ -65,6 +65,8 @@ app.get('/auth', (req, res) => {
 
 // OAuth callback - exchange code for tokens
 app.get('/callback', async (req, res) => {
+    // Log incoming callback query to help debug redirect/authorization issues
+    console.log('OAuth callback received:', req.query);
     const { code, state, realmId } = req.query;
     if (!code) {
         return res.status(400).send('Missing code in callback');
