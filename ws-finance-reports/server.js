@@ -55,6 +55,11 @@ app.get('/', (req, res) => {
     `);
 });
 
+// Health/debug endpoint to verify public tunnels reach this machine
+app.get('/__health', (req, res) => {
+    res.json({ ok: true, time: new Date().toISOString(), headers: req.headers });
+});
+
 app.get('/auth', (req, res) => {
     const state = crypto.randomBytes(16).toString('hex');
     // store state in memory - for simple demo only
