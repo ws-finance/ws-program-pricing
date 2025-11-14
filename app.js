@@ -436,6 +436,15 @@ let appliedTravel = {
     meals: 0
 };
 
+// DOM helper utilities to centralize defensive access
+function el(id) { return document.getElementById(id); }
+function show(id) { const e = el(id); if (e && e.classList) e.classList.remove('hidden'); }
+function hide(id) { const e = el(id); if (e && e.classList) e.classList.add('hidden'); }
+function setText(id, txt) { const e = el(id); if (e) e.textContent = txt; }
+function setValue(id, val) { const e = el(id); if (e) e.value = val; }
+function getNumber(id, fallback = 0) { const e = el(id); if (!e) return fallback; return (parseFloat(e.value) || fallback); }
+function getString(id, fallback = '') { const e = el(id); if (!e) return fallback; return e.value; }
+
 // Calculate cost for a component
 function calculateComponentCost(component, quantity) {
     if (quantity === 0) return 0;
@@ -480,18 +489,18 @@ function updateTotal() {
 
     // Apply indirect rate and markup (guard element access because
     // the summary panel may not exist yet in some timing scenarios)
-    const indirectEl = document.getElementById('indirectRate');
-    const markupEl = document.getElementById('markup');
+    const indirectEl = el('indirectRate');
+    const markupEl = el('markup');
     const indirectRate = indirectEl ? (parseFloat(indirectEl.value) || 0) : 0;
     const markupRate = markupEl ? (parseFloat(markupEl.value) || 0) : 0;
 
     // Add additional costs (guard each input; default to 0 if missing)
     // Prefer explicit input fields if present (legacy), otherwise use the
     // values the user applied from the travel calculator (appliedTravel).
-    const airfareEl = document.getElementById('airfare');
-    const hotelEl = document.getElementById('hotel');
-    const transportationEl = document.getElementById('transportation');
-    const mealsEl = document.getElementById('mealsPerDiem');
+    const airfareEl = el('airfare');
+    const hotelEl = el('hotel');
+    const transportationEl = el('transportation');
+    const mealsEl = el('mealsPerDiem');
     const airfare = airfareEl ? (parseFloat(airfareEl.value) || 0) : (appliedTravel.airfare || 0);
     const hotel = hotelEl ? (parseFloat(hotelEl.value) || 0) : (appliedTravel.lodging || 0);
     const transportation = transportationEl ? (parseFloat(transportationEl.value) || 0) : (appliedTravel.transport || 0);
@@ -499,14 +508,14 @@ function updateTotal() {
     const additionalCosts = airfare + hotel + transportation + mealsPerDiem;
 
     // Update travel summary display if present
-    const travelSummaryEl = document.getElementById('travelSummary');
+    const travelSummaryEl = el('travelSummary');
     if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(additionalCosts);
 
     // Update individual travel breakdown elements (guarded)
-    const airfareSummaryEl = document.getElementById('airfareSummary');
-    const hotelSummaryEl = document.getElementById('hotelSummary');
-    const transportSummaryEl = document.getElementById('transportSummary');
-    const mealsSummaryEl = document.getElementById('mealsSummary');
+    const airfareSummaryEl = el('airfareSummary');
+    const hotelSummaryEl = el('hotelSummary');
+    const transportSummaryEl = el('transportSummary');
+    const mealsSummaryEl = el('mealsSummary');
     if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(airfare);
     if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(hotel);
     if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(transportation);
@@ -521,11 +530,11 @@ function updateTotal() {
     const grandTotal = subtotal + additionalCosts;
 
     // Update display (guard writes in case panel elements are not present)
-    const baseCostEl = document.getElementById('baseCost');
-    const indirectCostEl = document.getElementById('indirectCost');
-    const markupCostEl = document.getElementById('markupCost');
-    const subtotalEl = document.getElementById('subtotal');
-    const totalAmountEl = document.getElementById('totalAmount');
+    const baseCostEl = el('baseCost');
+    const indirectCostEl = el('indirectCost');
+    const markupCostEl = el('markupCost');
+    const subtotalEl = el('subtotal');
+    const totalAmountEl = el('totalAmount');
     if (baseCostEl) baseCostEl.textContent = formatCurrency(baseTotal);
     if (indirectCostEl) indirectCostEl.textContent = formatCurrency(indirectCost);
     if (markupCostEl) markupCostEl.textContent = formatCurrency(markupCost);
@@ -644,7 +653,7 @@ function createComponentRow(component, programName, componentIndex) {
 
 // Populate program selector
 function populateProgramSelector() {
-    const selector = document.getElementById('programSelector');
+    const selector = el('programSelector');
 
     Object.keys(programData).forEach(programName => {
         const option = document.createElement('option');
@@ -657,34 +666,34 @@ function populateProgramSelector() {
         const selectedProgram = e.target.value;
         if (selectedProgram) {
             renderSelectedProgram(selectedProgram);
-            document.getElementById('selectedProgramContainer').classList.remove('hidden');
+            show('selectedProgramContainer');
         } else {
-            document.getElementById('selectedProgramContainer').classList.add('hidden');
-            document.getElementById('summaryPanel').classList.add('hidden');
-            document.getElementById('emptyState').classList.remove('hidden');
+            hide('selectedProgramContainer');
+            hide('summaryPanel');
+            show('emptyState');
         }
     });
 }
 
 // Render selected program
 function renderSelectedProgram(programName) {
-    const container = document.getElementById('programsContainer');
+    const container = el('programsContainer');
     container.innerHTML = ''; // Clear previous
 
     // Show summary panel and hide empty state
-    document.getElementById('summaryPanel').classList.remove('hidden');
-    document.getElementById('emptyState').classList.add('hidden');
+    show('summaryPanel');
+    hide('emptyState');
 
     // Reset travel form (guard each element because summary panel may be
     // missing in some render/timing/CSP scenarios in certain browsers)
-    const travelFromEl = document.getElementById('travelFrom');
-    const travelToEl = document.getElementById('travelTo');
-    const travelPerDiemEl = document.getElementById('travelPerDiem');
-    const travelTripsEl = document.getElementById('travelTrips');
-    const travelDaysEl = document.getElementById('travelDays');
-    const travelPLFsEl = document.getElementById('travelPLFs');
-    const travelGroundEl = document.getElementById('travelGroundPerDay');
-    const lodgingRegionEl = document.getElementById('lodgingRegion');
+    const travelFromEl = el('travelFrom');
+    const travelToEl = el('travelTo');
+    const travelPerDiemEl = el('travelPerDiem');
+    const travelTripsEl = el('travelTrips');
+    const travelDaysEl = el('travelDays');
+    const travelPLFsEl = el('travelPLFs');
+    const travelGroundEl = el('travelGroundPerDay');
+    const lodgingRegionEl = el('lodgingRegion');
     if (travelFromEl) travelFromEl.selectedIndex = 0;
     if (travelToEl) travelToEl.selectedIndex = 0;
     if (travelPerDiemEl) travelPerDiemEl.value = defaultPerDiem;
@@ -754,8 +763,8 @@ function renderSelectedProgram(programName) {
     container.appendChild(section);
 
     // Show summary panel and hide empty state
-    document.getElementById('summaryPanel').classList.remove('hidden');
-    document.getElementById('emptyState').classList.add('hidden');
+    show('summaryPanel');
+    hide('emptyState');
 
     // Initialize summary panel listeners once (safely after panel exists)
     if (!summaryPanelInitialized) initializeSummaryPanel();
@@ -766,7 +775,7 @@ function renderSelectedProgram(programName) {
 
 // Export functionality
 function exportToPDF() {
-    const selectedProgram = document.getElementById('programSelector').value;
+    const selectedProgram = getString('programSelector');
     if (!selectedProgram) {
         alert('Please select a program first');
         return;
@@ -776,8 +785,8 @@ function exportToPDF() {
     exportText += `Generated on: ${new Date().toLocaleDateString()}\n\n`;
 
     const section = document.querySelector('.program-section');
-    const programName = section.querySelector('h3').textContent;
-    const programTotal = section.querySelector('#programTotal').textContent;
+    const programName = section ? (section.querySelector('h3')?.textContent || 'Program') : 'Program';
+    const programTotal = section ? (section.querySelector('#programTotal')?.textContent || '$0.00') : '$0.00';
 
     exportText += `${programName}\n${'='.repeat(60)}\n`;
 
@@ -794,19 +803,19 @@ function exportToPDF() {
     });
 
     exportText += `\n${'='.repeat(60)}\n`;
-    exportText += `Base Cost: ${document.getElementById('baseCost').textContent}\n`;
+    exportText += `Base Cost: ${el('baseCost')?.textContent || '$0.00'}\n`;
     // Safely read additional costs: prefer explicit inputs if present, else
     // fallback to appliedTravel values filled by the Apply action.
-    const airfareVal = parseFloat(document.getElementById('airfare')?.value) || appliedTravel.airfare || 0;
-    const hotelVal = parseFloat(document.getElementById('hotel')?.value) || appliedTravel.lodging || 0;
-    const transportVal = parseFloat(document.getElementById('transportation')?.value) || appliedTravel.transport || 0;
-    const mealsVal = parseFloat(document.getElementById('mealsPerDiem')?.value) || appliedTravel.meals || 0;
+    const airfareVal = getNumber('airfare', appliedTravel.airfare || 0) || appliedTravel.airfare || 0;
+    const hotelVal = getNumber('hotel', appliedTravel.lodging || 0) || appliedTravel.lodging || 0;
+    const transportVal = getNumber('transportation', appliedTravel.transport || 0) || appliedTravel.transport || 0;
+    const mealsVal = getNumber('mealsPerDiem', appliedTravel.meals || 0) || appliedTravel.meals || 0;
     const additionalTotal = airfareVal + hotelVal + transportVal + mealsVal;
 
     exportText += `Additional Costs: $${additionalTotal.toFixed(2)}\n`;
-    exportText += `Indirect Cost (${document.getElementById('indirectRate').value}% on Base): ${document.getElementById('indirectCost').textContent}\n`;
-    exportText += `Markup (${document.getElementById('markup').value}% on Base+Indirect): ${document.getElementById('markupCost').textContent}\n`;
-    exportText += `Subtotal (Base + Indirect + Markup): ${document.getElementById('subtotal').textContent}\n\n`;
+    exportText += `Indirect Cost (${el('indirectRate')?.value || 0}% on Base): ${el('indirectCost')?.textContent || '$0.00'}\n`;
+    exportText += `Markup (${el('markup')?.value || 0}% on Base+Indirect): ${el('markupCost')?.textContent || '$0.00'}\n`;
+    exportText += `Subtotal (Base + Indirect + Markup): ${el('subtotal')?.textContent || '$0.00'}\n\n`;
 
     exportText += `Additional Cost Breakdown:\n`;
     exportText += `Airfare: $${airfareVal.toFixed(2)}\n`;
@@ -815,7 +824,7 @@ function exportToPDF() {
     exportText += `Meals / Per Diem: $${mealsVal.toFixed(2)}\n`;
     exportText += `Additional Total: $${additionalTotal.toFixed(2)}\n\n`;
 
-    exportText += `${'='.repeat(60)}\nGRAND TOTAL: ${document.getElementById('totalAmount').textContent}\n`;
+    exportText += `${'='.repeat(60)}\nGRAND TOTAL: ${el('totalAmount')?.textContent || '$0.00'}\n`;
 
     // Create download
     const blob = new Blob([exportText], { type: 'text/plain' });
@@ -831,9 +840,9 @@ function exportToPDF() {
 
 // Toggle instructions visibility
 function toggleInstructions() {
-    const content = document.getElementById('instructionsContent');
-    const icon = document.getElementById('instructionsIcon');
-    
+    const content = el('instructionsContent');
+    const icon = el('instructionsIcon');
+    if (!content || !icon) return;
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
         icon.classList.add('rotate-180');
@@ -845,9 +854,9 @@ function toggleInstructions() {
 
 // Toggle travel instructions dropdown
 function toggleTravelInstructions() {
-    const content = document.getElementById('travelInstructionsContent');
-    const icon = document.getElementById('travelInstructionsIcon');
-    if (!content) return;
+    const content = el('travelInstructionsContent');
+    const icon = el('travelInstructionsIcon');
+    if (!content || !icon) return;
     if (content.classList.contains('hidden')) {
         content.classList.remove('hidden');
         icon.classList.add('rotate-180');
@@ -873,31 +882,31 @@ function initializeSummaryPanel() {
     if (summaryPanelInitialized) return;
 
     // Add event listeners for rate and markup inputs
-    const indirectEl = document.getElementById('indirectRate');
-    const markupEl = document.getElementById('markup');
+    const indirectEl = el('indirectRate');
+    const markupEl = el('markup');
     if (indirectEl) indirectEl.addEventListener('input', updateTotal);
     if (markupEl) markupEl.addEventListener('input', updateTotal);
 
     // Add event listeners for additional cost inputs
-    const airfareEl = document.getElementById('airfare');
-    const hotelEl = document.getElementById('hotel');
-    const transportEl = document.getElementById('transportation');
-    const mealsEl = document.getElementById('mealsPerDiem');
+    const airfareEl = el('airfare');
+    const hotelEl = el('hotel');
+    const transportEl = el('transportation');
+    const mealsEl = el('mealsPerDiem');
     if (airfareEl) airfareEl.addEventListener('input', updateTotal);
     if (hotelEl) hotelEl.addEventListener('input', updateTotal);
     if (transportEl) transportEl.addEventListener('input', updateTotal);
     if (mealsEl) mealsEl.addEventListener('input', updateTotal);
 
     // Wire up travel calculator controls (they live inside the summary panel)
-    const calcBtn = document.getElementById('calculateTravelBtn');
-    const applyBtn = document.getElementById('applyTravelBtn');
-    const travelTo = document.getElementById('travelTo');
-    const travelFrom = document.getElementById('travelFrom');
-    const lodgingRegionSelect = document.getElementById('lodgingRegion');
+    const calcBtn = el('calculateTravelBtn');
+    const applyBtn = el('applyTravelBtn');
+    const travelTo = el('travelTo');
+    const travelFrom = el('travelFrom');
+    const lodgingRegionSelect = el('lodgingRegion');
 
     if (calcBtn) calcBtn.addEventListener('click', calculateTravel);
     if (applyBtn) applyBtn.addEventListener('click', applyTravelToSummary);
-    const clearBtn = document.getElementById('clearTravelBtn');
+    const clearBtn = el('clearTravelBtn');
     if (clearBtn) clearBtn.addEventListener('click', clearTravel);
     if (travelTo) travelTo.addEventListener('change', onTravelToChange);
     if (travelFrom) travelFrom.addEventListener('change', () => { onTravelToChange(); updateAirfarePreview(); });
@@ -914,7 +923,7 @@ function clearTravel() {
     appliedTravel.meals = 0;
 
     // Clear datasets on calculate button (if present)
-    const calcBtn = document.getElementById('calculateTravelBtn');
+    const calcBtn = el('calculateTravelBtn');
     if (calcBtn) {
         calcBtn.dataset.airfare = '0';
         calcBtn.dataset.lodging = '0';
@@ -923,12 +932,12 @@ function clearTravel() {
     }
 
     // Update UI spans to zero
-    const airfareSummaryEl = document.getElementById('airfareSummary');
-    const hotelSummaryEl = document.getElementById('hotelSummary');
-    const transportSummaryEl = document.getElementById('transportSummary');
-    const mealsSummaryEl = document.getElementById('mealsSummary');
-    const travelSummaryEl = document.getElementById('travelSummary');
-    const travelTotalEl = document.getElementById('travelTotal');
+    const airfareSummaryEl = el('airfareSummary');
+    const hotelSummaryEl = el('hotelSummary');
+    const transportSummaryEl = el('transportSummary');
+    const mealsSummaryEl = el('mealsSummary');
+    const travelSummaryEl = el('travelSummary');
+    const travelTotalEl = el('travelTotal');
     if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(0);
     if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(0);
     if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(0);
@@ -1002,8 +1011,8 @@ function populateTravelSelectors() {
     const toSet = new Set();
     travelRates.forEach(r => { if (r.from) fromSet.add(r.from); if (r.to) toSet.add(r.to); });
 
-    const travelFrom = document.getElementById('travelFrom');
-    const travelTo = document.getElementById('travelTo');
+    const travelFrom = el('travelFrom');
+    const travelTo = el('travelTo');
     if (travelFrom) travelFrom.innerHTML = '';
     if (travelTo) travelTo.innerHTML = '';
 
@@ -1019,8 +1028,8 @@ function populateTravelSelectors() {
     if (travelTo && travelTo.options.length) travelTo.selectedIndex = 0;
 
     // default per diem and ground (guard elements)
-    const travelPerDiemEl = document.getElementById('travelPerDiem');
-    const travelGroundEl = document.getElementById('travelGroundPerDay');
+    const travelPerDiemEl = el('travelPerDiem');
+    const travelGroundEl = el('travelGroundPerDay');
     if (travelPerDiemEl) travelPerDiemEl.value = defaultPerDiem;
     if (travelGroundEl) travelGroundEl.value = defaultGround;
 
@@ -1031,8 +1040,8 @@ function populateTravelSelectors() {
 }
 
 function onTravelToChange() {
-    const travelToEl = document.getElementById('travelTo');
-    const lodgingElem = document.getElementById('lodgingRegion');
+    const travelToEl = el('travelTo');
+    const lodgingElem = el('lodgingRegion');
     if (!travelToEl) return; // nothing to do if selector missing
     const to = travelToEl.value;
     let lodgingRegion = 'all';
@@ -1056,16 +1065,16 @@ function onTravelToChange() {
             lodging = lodgingDefaults['NYC/SF'];
         } else lodging = 275;
     }
-    const travelLodgingEl = document.getElementById('travelLodgingPerNight');
+    const travelLodgingEl = el('travelLodgingPerNight');
     if (travelLodgingEl) travelLodgingEl.value = lodging;
     // also update airfare preview whenever travel destination changes
     updateAirfarePreview();
 }
 
 function updateAirfarePreview() {
-    const travelFromEl = document.getElementById('travelFrom');
-    const travelToEl = document.getElementById('travelTo');
-    const airfarePreviewEl = document.getElementById('travelAirfarePerTrip');
+    const travelFromEl = el('travelFrom');
+    const travelToEl = el('travelTo');
+    const airfarePreviewEl = el('travelAirfarePerTrip');
     if (!travelFromEl || !travelToEl || !airfarePreviewEl) return;
     const from = travelFromEl.value;
     const to = travelToEl.value;
@@ -1075,14 +1084,14 @@ function updateAirfarePreview() {
 }
 
 function calculateTravel() {
-    const travelFromEl = document.getElementById('travelFrom');
-    const travelToEl = document.getElementById('travelTo');
-    const perDiemEl = document.getElementById('travelPerDiem');
-    const tripsEl = document.getElementById('travelTrips');
-    const daysEl = document.getElementById('travelDays');
-    const plfsEl = document.getElementById('travelPLFs');
-    const lodgingPerNightEl = document.getElementById('travelLodgingPerNight');
-    const groundPerDayEl = document.getElementById('travelGroundPerDay');
+    const travelFromEl = el('travelFrom');
+    const travelToEl = el('travelTo');
+    const perDiemEl = el('travelPerDiem');
+    const tripsEl = el('travelTrips');
+    const daysEl = el('travelDays');
+    const plfsEl = el('travelPLFs');
+    const lodgingPerNightEl = el('travelLodgingPerNight');
+    const groundPerDayEl = el('travelGroundPerDay');
 
     // If core inputs are missing, bail out safely
     if (!travelFromEl || !travelToEl) return;
@@ -1107,11 +1116,11 @@ function calculateTravel() {
 
     const total = airfareTotal + perDiemTotal + lodgingTotal + groundTotal;
 
-    const travelTotalEl = document.getElementById('travelTotal');
+    const travelTotalEl = el('travelTotal');
     if (travelTotalEl) travelTotalEl.textContent = formatCurrency(total);
 
     // also show a preview of airfare/lodging/transport in small attributes
-    const calcBtn = document.getElementById('calculateTravelBtn');
+    const calcBtn = el('calculateTravelBtn');
     if (calcBtn) {
         calcBtn.dataset.airfare = airfareTotal.toFixed(2);
         calcBtn.dataset.lodging = lodgingTotal.toFixed(2);
@@ -1119,7 +1128,7 @@ function calculateTravel() {
         calcBtn.dataset.perdiem = perDiemTotal.toFixed(2);
     }
     // update airfare per-trip preview
-    const airfarePreviewEl = document.getElementById('travelAirfarePerTrip');
+    const airfarePreviewEl = el('travelAirfarePerTrip');
     if (airfarePreviewEl) airfarePreviewEl.textContent = formatCurrency(airfarePerTrip);
 }
 
@@ -1127,10 +1136,11 @@ function applyTravelToSummary() {
     // Read calculated totals from the Calculate button dataset and store them
     // in the appliedTravel object. Then update the visible summary lines and
     // recalc totals.
-    const airfareTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.airfare) || 0;
-    const lodgingTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.lodging) || 0;
-    const transportTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.transport) || 0;
-    const perDiemTotal = parseFloat(document.getElementById('calculateTravelBtn')?.dataset.perdiem) || 0;
+    const calcBtn = el('calculateTravelBtn');
+    const airfareTotal = parseFloat(calcBtn?.dataset.airfare) || 0;
+    const lodgingTotal = parseFloat(calcBtn?.dataset.lodging) || 0;
+    const transportTotal = parseFloat(calcBtn?.dataset.transport) || 0;
+    const perDiemTotal = parseFloat(calcBtn?.dataset.perdiem) || 0;
 
     appliedTravel.airfare = airfareTotal;
     appliedTravel.lodging = lodgingTotal;
@@ -1138,11 +1148,11 @@ function applyTravelToSummary() {
     appliedTravel.meals = perDiemTotal;
 
     // Update summary display spans (they will be used by updateTotal too)
-    const airfareSummaryEl = document.getElementById('airfareSummary');
-    const hotelSummaryEl = document.getElementById('hotelSummary');
-    const transportSummaryEl = document.getElementById('transportSummary');
-    const mealsSummaryEl = document.getElementById('mealsSummary');
-    const travelSummaryEl = document.getElementById('travelSummary');
+    const airfareSummaryEl = el('airfareSummary');
+    const hotelSummaryEl = el('hotelSummary');
+    const transportSummaryEl = el('transportSummary');
+    const mealsSummaryEl = el('mealsSummary');
+    const travelSummaryEl = el('travelSummary');
     if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(airfareTotal);
     if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(lodgingTotal);
     if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(transportTotal);
