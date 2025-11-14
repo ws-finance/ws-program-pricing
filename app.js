@@ -300,6 +300,12 @@ const programData = {
     ],
     'LCE (Virtually Delivered)': [
         {
+            component: 'Launch Workshop',
+            description: '2 hours (Delivery 2 hours Prep =8 hours (2x4) Prep ratio 4/1 Total = 10 hours)',
+            multiplier: 1,
+            hours:{PLF: 10  }
+        },
+        {
             component: 'Design Sprint Sessions',
             description: '6 sessions per year, 2 hours, 4-5 participants per group (single group is standard)\n(Delivery 1.5 hours, Prep 6 hours (1.5 x 4) - Prep ratio 4/1, Total = 7.5 hours)',
             multiplier: 6,
@@ -622,7 +628,19 @@ function createComponentRow(component, programName, componentIndex) {
     multInput.className = 'multiplier-input w-16 px-2 py-1 text-sm border border-slate-300 rounded focus:border-primary-500 focus:ring-1 focus:ring-primary-500';
     multInput.min = '0';
     multInput.step = '1';
-    multInput.value = '1'; // default multiplier is 1
+    // default multiplier is 1
+    multInput.value = '1';
+    // If this component is an evaluation item, disable the multiplier
+    // to prevent users from changing it. Evaluation components should
+    // have a fixed multiplier of 1.
+    if (component.evaluation) {
+        multInput.value = '1';
+        multInput.disabled = true;
+        multInput.title = 'Multiplier fixed for evaluation items';
+        // visually indicate disabled state
+        multInput.className += ' opacity-50 cursor-not-allowed';
+        multInput.setAttribute('aria-disabled', 'true');
+    }
     tdMultiplier.appendChild(multInput);
     tr.appendChild(tdMultiplier);
 
