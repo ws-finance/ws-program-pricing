@@ -72,6 +72,18 @@ app.get('/__health', (req, res) => {
     res.json({ ok: true, time: new Date().toISOString(), headers: req.headers });
 });
 
+// Debug endpoint to confirm server loaded important env values (does NOT return secrets)
+app.get('/whoami', (req, res) => {
+    const hasClientId = !!CLIENT_ID;
+    const clientIdSample = CLIENT_ID ? `${CLIENT_ID.slice(0,4)}...${CLIENT_ID.slice(-4)}` : null;
+    res.json({
+        clientIdSet: hasClientId,
+        clientIdSample,
+        redirectUri: REDIRECT_URI || null,
+        environment: ENV || null
+    });
+});
+
 app.get('/auth', (req, res) => {
     const state = crypto.randomBytes(16).toString('hex');
     const oauthClient = getOauthClient();
