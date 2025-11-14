@@ -323,6 +323,27 @@ const programData = {
             description: 'Added in 4 hour blocks, one hour between each session',
             multiplier: 4,
             hours: { PLF: 2.5, 'Program Coordinator': 0, 'Director of Evaluation': 0 }
+        },
+        {
+            component: 'Travel - Low',
+            description: 'Estimated travel time 30 min to 2 hours each way\n(Assumes in-person event for 1 night)',
+            multiplier: 1,
+            hours: { PLF: 3, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        },
+        {
+            component: 'Travel - Mid',
+            description: 'Estimated travel time 2 to 6 hours each way',
+            multiplier: 1,
+            hours: { PLF: 8, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        },
+        {
+            component: 'Travel - High',
+            description: 'Estimated travel time 6 to 10 hours each way',
+            multiplier: 1,
+            hours: { PLF: 16, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
         }
     ],
     'Readiness Assessment': [
@@ -427,6 +448,75 @@ const programData = {
             description: '1 day, 6 hours delivery + 2 hours set-up/tear down\n(Delivery = 6 hours, Prep = 24 hours (6 x 4) - Prep ratio 4/1, Set-up/Tear Down = 2 hours, Total = 32 hours)',
             multiplier: 1,
             hours: { PLF: 32, 'Program Coordinator': 0, 'Director of Evaluation': 0 }
+        },
+        {
+            component: 'Travel - Low',
+            description: 'Estimated travel time 30 min to 2 hours each way\n(Assumes in-person event for 1 night)',
+            multiplier: 1,
+            hours: { PLF: 3, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        },
+        {
+            component: 'Travel - Mid',
+            description: 'Estimated travel time 2 to 6 hours each way',
+            multiplier: 1,
+            hours: { PLF: 8, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        },
+        {
+            component: 'Travel - High',
+            description: 'Estimated travel time 6 to 10 hours each way',
+            multiplier: 1,
+            hours: { PLF: 16, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        }
+    ],
+    "Profile of a Graduate": [
+        {
+            component: 'DIY Kit',
+            description: 'Supporting materials and directions for delivery - flat fee, no additional services',
+            multiplier: 1,
+            hours: {PLF:0, 'Program Coordinator': 0, 'Director of Evaluation':0}
+        },
+        {
+            component: '1:1 Coaching',
+            description: '10 hours of coaching in standard package \n (Prep ratio of 1.5/1)',
+            multiplier: 10,
+            hours: {PLF:2.5, 'Program Coordinator': 0, 'Director of Evaluation':0}
+
+        },
+        {
+            component: 'Co-facilitation of listenting sessions',
+            description: 'In-person 1 facilitator \n Session length 90 min + set up/tear down (2.5 hours) \n Prep ratio 4/1 = 1.5x4= 6 hours + 1 for set up for a total of 8.5',
+            multiplier: 1,
+            hours: {PLF: 8.5, 'Program Coordinator':0, 'Director of Evaluation':0},
+        },
+        {
+            component: 'Profile of a learner Marketing and Design',
+            description: 'Draft + Final, branded to school/district \n Flat fee of 2500',
+            multiplier: 1,
+            hours: {PLF:0, 'Program Coordinator': 0, 'Director of Evaluation':0},
+        },
+        {
+            component: 'Travel - Low',
+            description: 'Estimated travel time 30 min to 2 hours each way\n(Assumes in-person event for 1 night)',
+            multiplier: 1,
+            hours: { PLF: 3, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        },
+        {
+            component: 'Travel - Mid',
+            description: 'Estimated travel time 2 to 6 hours each way',
+            multiplier: 1,
+            hours: { PLF: 8, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
+        },
+        {
+            component: 'Travel - High',
+            description: 'Estimated travel time 6 to 10 hours each way',
+            multiplier: 1,
+            hours: { PLF: 16, 'Program Coordinator': 0, 'Director of Evaluation': 0 },
+            isTravel: true
         }
     ]
 };
