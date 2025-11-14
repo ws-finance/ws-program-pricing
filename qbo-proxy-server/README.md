@@ -1,8 +1,6 @@
-# ws-finance-reports
+QuickBooks Online Reports proxy
 
-QuickBooks Online Reports proxy for ws-finance
-
-This Node.js app provides a small backend to authenticate with QuickBooks Online (OAuth2), persist tokens, refresh them, and fetch the Reports API (GeneralLedger). It's intended to act as a backend data source for Power BI or other ETL.
+This small Node.js app demonstrates how to authenticate with QuickBooks Online (OAuth2), persist tokens, refresh them, and fetch the Reports API (GeneralLedger) — useful as a backend data source for Power BI or other ETL.
 
 Prerequisites
 - Node.js 16+ installed
@@ -15,7 +13,7 @@ Setup
 2. Install dependencies:
 
 ```bash
-cd ws-finance-reports
+cd qbo-proxy-server
 npm install
 ```
 
@@ -51,58 +49,6 @@ Notes & next steps
 - Add retry/backoff for network calls and logging.
 - If you want CSV-like output compatible with Power BI, you can transform the report JSON into a flat table in this app before returning.
 - Power BI can also call this endpoint directly (using web connector) assuming your server is accessible to Power BI and tokens are handled server-side.
-
-Using Localtunnel (quick, no signup)
------------------------------------
-If you don't want to use ngrok, `localtunnel` is a very quick way to get a public HTTPS URL for your local server.
-
-1. Start your server locally (port 3000 by default):
-
-```bash
-cd ws-finance-reports
-npm install   # if not already done
-npm start
-```
-
-2. Open a second terminal and run localtunnel. You can request a custom subdomain (may be unavailable):
-
-```bash
-npx localtunnel --port 3000 --subdomain ws-finance-reports-xyz
-```
-
-If successful you'll get an output like:
-
-```
-your url is: https://ws-finance-reports-xyz.loca.lt
-```
-
-3. Register the callback URL in your Intuit Developer app (Dashboard → App settings → OAuth) exactly as:
-
-```
-https://ws-finance-reports-xyz.loca.lt/callback
-```
-
-4. Update your `.env` (or export the env) to point `REDIRECT_URI` to the same URL above. Example `.env`:
-
-```
-CLIENT_ID=...
-CLIENT_SECRET=...
-REDIRECT_URI=https://ws-finance-reports-xyz.loca.lt/callback
-ENVIRONMENT=sandbox
-PORT=3000
-```
-
-5. Complete the OAuth flow by visiting your public URL (or localhost) and clicking Connect. Intuit will redirect back to your local app via the localtunnel URL.
-
-Notes about localtunnel:
-- Subdomains on `localtunnel.me` / `loca.lt` are free but may be ephemeral or unavailable; pick a short unique name.
-- If the subdomain is taken, try another name or omit `--subdomain` to get a random URL.
-
-Optional helper script
-----------------------
-There's an optional helper script included (`run-localtunnel.sh`) that runs localtunnel (requires `npx` available). It does not edit your `.env` or Intuit app for you — you still need to register the redirect URI in the Intuit dashboard.
-
-See the `run-localtunnel.sh` file in the repo for the exact command.
 
 Security
 - Do not commit your `.env` (contains secrets). Use proper secrets management for production.
