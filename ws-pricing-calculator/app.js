@@ -476,7 +476,8 @@ const programData = {
             component: 'DIY Kit',
             description: 'Supporting materials and directions for delivery - flat fee, no additional services',
             multiplier: 1,
-            hours: {PLF:0, 'Program Coordinator': 0, 'Director of Evaluation':0}
+            hours: {PLF:0, 'Program Coordinator': 0, 'Director of Evaluation':0},
+            flatFee: 7500
         },
         {
             component: '1:1 Coaching',
@@ -496,6 +497,7 @@ const programData = {
             description: 'Draft + Final, branded to school/district \n Flat fee of 2500',
             multiplier: 1,
             hours: {PLF:0, 'Program Coordinator': 0, 'Director of Evaluation':0},
+            flatFee: 2500
         },
         {
             component: 'Travel - Low',
