@@ -188,7 +188,8 @@ export function calculateTravel() {
 
     // Airfare: include base airfare for trips + any extra flights the user entered
     const baseAirfareForTrips = airfarePerTrip * trips * plfs;
-    const flightsTotal = numberOfAirfare * airfarePerTrip;
+    // Multiply number of flights by staff needed (each staff's flights)
+    const flightsTotal = numberOfAirfare * plfs * airfarePerTrip;
     const airfareTotal = baseAirfareForTrips + flightsTotal;
     const perDiemTotal = perDiem * (days + 1) * trips * plfs; // Per diem is for nights + 1
     const lodgingTotal = lodgingPerNight * days * trips * plfs;
