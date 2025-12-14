@@ -3,6 +3,19 @@ export const hourlyRates = {
     'Program Coordinator': 38.82,
     'Director of Evaluation': 62.08
 };
+export const airfareRates = [
+    { from: 'Local travel/no travel', to: 'Local travel/no travel', amount: 0, lodgingPerNight: 0 },
+    { from: 'West Coast', to: 'Midwest', amount: 800, lodgingPerNight: 275 },
+    { from: 'West Coast', to: 'Mountain West', amount: 250, lodgingPerNight: 275 },
+    { from: 'Midwest', to: 'East Coast', amount: 700, lodgingPerNight: 375 },
+    { from: 'Midwest', to: 'South', amount: 500, lodgingPerNight: 275 },
+    { from: 'Midwest', to: 'West Coast', amount: 800, lodgingPerNight: 375 },
+    { from: 'Midwest', to: 'Mountain West', amount: 250, lodgingPerNight: 275 },
+    { from: 'Midwest', to: 'Midwest', amount: 250, lodgingPerNight: 275 },
+    { from: 'Southeast', to: 'Midwest', amount: 600, lodgingPerNight: 275 },
+    { from: 'East Coast', to: 'East Coast', amount: 250, lodgingPerNight: 275 },
+    { from: 'US', to: 'International', amount: 1750, lodgingPerNight: 375 }
+];
 
 // Program data parsed from Pricing - Hourly Estimates.csv
 export const programData = {
