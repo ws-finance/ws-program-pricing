@@ -194,7 +194,8 @@ export function calculateTravel() {
     const perDiemTotal = perDiem * (days + 1) * trips * plfs; // Per diem is for nights + 1
     const lodgingTotal = lodgingPerNight * days * trips * plfs;
     const groundTotal = groundPerDay * days * trips * plfs;
-    const carMileageTotal = carMiles * carRate * trips * plfs;
+    // Treat car mileage as trip-level (do not multiply by staff, allow carpooling)
+    const carMileageTotal = carMiles * carRate * trips;
 
     // Additional trips calculations
     const numAdditionalTrips = parseInt(numAdditionalTripsEl?.value) || 0;
@@ -209,7 +210,8 @@ export function calculateTravel() {
     const lodgingAddTotal = perAddLodging * numAdditionalTrips * plfs;
     const transportAddTotal = perAddGround * numAdditionalTrips * plfs;
     const perdiemAddTotal = perAddPerDiem * numAdditionalTrips * plfs;
-    const carAddTotal = perAddCarMileage * numAdditionalTrips * plfs;
+    // Additional trip mileage is treated as trip-level (not multiplied by staff)
+    const carAddTotal = perAddCarMileage * numAdditionalTrips;
 
     const additionalTripsTotal = lodgingAddTotal + transportAddTotal + perdiemAddTotal + carAddTotal;
 
