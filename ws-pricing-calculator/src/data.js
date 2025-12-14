@@ -500,7 +500,7 @@ export const programData = {
 
         },
         {
-            component: 'Co-facilitation of listenting sessions',
+            component: 'Co-facilitation of listening sessions',
             description: 'In-person 1 facilitator \n Session length 90 min + set up/tear down (2.5 hours) \n Prep ratio 4/1 = 1.5x4= 6 hours + 1 for set up for a total of 8.5',
             multiplier: 1,
             hours: {PLF: 8.5, 'Program Coordinator':0, 'Director of Evaluation':0},
