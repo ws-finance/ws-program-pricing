@@ -21,13 +21,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./ws-pricing-calculator
+        run: npm ci
+
+      - name: Build project
+        working-directory: ./ws-pricing-calculator
+        run: npm run build --if-present
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./ws-pricing-calculator
+          # Upload the built static output. If your build outputs to `dist`, use that.
+          path: ./ws-pricing-calculator/dist
 
   deploy:
     environment:
