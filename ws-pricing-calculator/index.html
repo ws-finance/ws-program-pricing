@@ -185,9 +185,14 @@
                                     <input type="number" id="travelAirfare" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.01" placeholder="0.00">
                                 </div>
                                                                 <div>
-                                                                    <label class="block text-xs text-slate-600 mb-1"># of flights</label>
-                                                                    <input type="number" id="numberOfAirfare" title="# of flights is per staff member" aria-describedby="numberOfAirfareHelp" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="1" placeholder="0">
-                                                                    <div id="numberOfAirfareHelp" class="text-xs text-slate-500 mt-1">This is the number of flights per staff member (e.g. 2 staff × 2 flights = 4 flights).</div>
+                                                                    <label class="block text-xs text-slate-600 mb-1"># of flights
+                                                                        <button type="button" class="ml-2 inline-flex items-center text-slate-400 hover:text-slate-600" title="# of flights is per staff member (e.g. 2 staff × 2 flights = 4 flights)">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                                                <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-9-3a1 1 0 112 0v1a1 1 0 11-2 0V7zm1 4a1 1 0 00-.867.5l-.5 1a1 1 0 00.867 1.5h1a1 1 0 00.867-1.5l-.5-1A1 1 0 0010 11z" clip-rule="evenodd" />
+                                                                            </svg>
+                                                                        </button>
+                                                                    </label>
+                                                                    <input type="number" id="numberOfAirfare" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="1" placeholder="0">
                                                                 </div>
                             </div>
 
