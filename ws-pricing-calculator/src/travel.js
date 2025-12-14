@@ -165,7 +165,7 @@ export function calculateTravel() {
     const lodgingPerNight = parseFloat(lodgingPerNightEl?.value) || 0;
     const groundPerDay = parseFloat(groundPerDayEl?.value) || 0;
     const carMiles = parseFloat(carMilesEl?.value) || 0;
-    const carRate = parseFloat(carRateEl?.value) || 0.655;
+    const carRate = parseFloat(carRateEl?.value) || 0.70;
 
     // find airfare amount from CSV or use user-edited value
     const rate = travelRates.find(r => r.from === from && r.to === to);
