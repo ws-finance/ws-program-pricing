@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         instructionsBtn.addEventListener('click', toggleInstructions);
     }
 
-    const travelInstructionsBtn = document.getElementById('travelInstructionsBtn');
+    const travelInstructionsBtn = document.getElementById('travelInstructionsToggle');
     if (travelInstructionsBtn) {
         travelInstructionsBtn.addEventListener('click', toggleTravelInstructions);
     }
@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const travelToEl = document.getElementById('travelTo');
     const travelFromEl = document.getElementById('travelFrom');
+    const travelAirfareEl = document.getElementById('travelAirfare');
     const lodgingRegionEl = document.getElementById('lodgingRegion');
 
     if (travelToEl) {
@@ -67,6 +68,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             onTravelToChange();
             updateAirfarePreview();
         });
+    }
+    if (travelAirfareEl) {
+        travelAirfareEl.addEventListener('change', updateAirfarePreview);
+        travelAirfareEl.addEventListener('input', updateAirfarePreview);
     }
     if (lodgingRegionEl) {
         lodgingRegionEl.addEventListener('change', () => {

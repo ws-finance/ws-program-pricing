@@ -311,12 +311,14 @@ export function clearTravel() {
     appliedTravel.lodging = 0;
     appliedTravel.transport = 0;
     appliedTravel.meals = 0;
+    appliedTravel.carMileage = 0;
     const calcBtn = el('calculateTravelBtn');
     if (calcBtn) {
         calcBtn.dataset.airfare = '0';
         calcBtn.dataset.lodging = '0';
         calcBtn.dataset.transport = '0';
         calcBtn.dataset.perdiem = '0';
+        calcBtn.dataset.carMileage = '0';
     }
     const airfareSummaryEl = el('airfareSummary');
     const hotelSummaryEl = el('hotelSummary');
@@ -324,11 +326,17 @@ export function clearTravel() {
     const mealsSummaryEl = el('mealsSummary');
     const travelSummaryEl = el('travelSummary');
     const travelTotalEl = el('travelTotal');
+    const airfarePreviewEl = el('travelAirfarePerTrip');
+    const airfareInputEl = el('travelAirfare');
+    const travelCarTotalEl = el('travelCarTotal');
     if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(0);
     if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(0);
     if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(0);
     if (mealsSummaryEl) mealsSummaryEl.textContent = formatCurrency(0);
     if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(0);
     if (travelTotalEl) travelTotalEl.textContent = formatCurrency(0);
+    if (airfarePreviewEl) airfarePreviewEl.textContent = formatCurrency(0);
+    if (airfareInputEl) airfareInputEl.value = '';
+    if (travelCarTotalEl) travelCarTotalEl.value = '0.00';
     updateTotal();
 }

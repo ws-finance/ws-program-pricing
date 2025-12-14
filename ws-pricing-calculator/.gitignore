@@ -1,3 +1,26 @@
+#!/usr/bin/env text
+
+# Backup files
 *.bak
+*~
+
+# Node modules and build outputs
 node_modules/
 dist/
+build/
+
+# OS and editor
+.DS_Store
+.vscode/
+*.log
+
+# Data and exports
+*.csv
+*.xlsx
+*.xls
+
+# Environment
+.env
+
+# Misc
+npm-debug.log

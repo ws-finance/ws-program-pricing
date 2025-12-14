@@ -123,19 +123,29 @@ export function onTravelToChange() {
 }
 
 export function updateAirfarePreview() {
-    const travelFromEl = el('travelFrom');
-    const travelToEl = el('travelTo');
     const airfareInputEl = el('travelAirfare');
     const airfarePreviewEl = el('travelAirfarePerTrip');
-    if (!travelFromEl || !travelToEl || !airfarePreviewEl) return;
-    const from = travelFromEl.value;
-    const to = travelToEl.value;
-    const rate = travelRates.find(r => r.from === from && r.to === to);
-    const perTrip = rate ? rate.amount : 0;
-    // Prefill the editable airfare input only if it's empty (preserve user edits)
-    if (airfareInputEl && !airfareInputEl.value) {
-        airfareInputEl.value = perTrip > 0 ? perTrip.toFixed(2) : '';
+    if (!airfarePreviewEl) return;
+    
+    // Use user-entered value if available, otherwise use CSV rate
+    let perTrip = 0;
+    if (airfareInputEl && airfareInputEl.value) {
+        perTrip = parseFloat(airfareInputEl.value) || 0;
+    } else {
+        const travelFromEl = el('travelFrom');
+        const travelToEl = el('travelTo');
+        if (travelFromEl && travelToEl) {
+            const from = travelFromEl.value;
+            const to = travelToEl.value;
+            const rate = travelRates.find(r => r.from === from && r.to === to);
+            perTrip = rate ? rate.amount : 0;
+            // Prefill the editable airfare input only if it's empty (preserve user edits)
+            if (airfareInputEl && !airfareInputEl.value) {
+                airfareInputEl.value = perTrip > 0 ? perTrip.toFixed(2) : '';
+            }
+        }
     }
+    
     airfarePreviewEl.textContent = formatCurrency(perTrip);
 }
 

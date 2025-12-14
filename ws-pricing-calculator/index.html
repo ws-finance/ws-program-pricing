@@ -99,7 +99,7 @@
                 <div class="lg:col-span-1 space-y-6">
                     <!-- Instructions -->
                     <div class="bg-white rounded-lg shadow-sm border border-slate-200">
-                        <button onclick="toggleInstructions()" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-50 transition-colors">
+                        <button id="instructionsBtn" class="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-slate-50 transition-colors">
                             <h2 class="text-lg font-subheader font-black text-slate-900">How to Use</h2>
                             <svg id="instructionsIcon" class="w-5 h-5 text-slate-500 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -149,7 +149,7 @@
                             <div class="flex items-start justify-between">
                                 <h3 class="text-sm font-subheader font-black text-slate-900">Travel Calculator</h3>
                                 <div class="ml-2">
-                                    <button id="travelInstructionsToggle" onclick="toggleTravelInstructions()" class="text-sm text-slate-600 hover:text-slate-800 flex items-center gap-2">
+                                    <button id="travelInstructionsToggle" class="text-sm text-slate-600 hover:text-slate-800 flex items-center gap-2">
                                         <svg id="travelInstructionsIcon" class="w-4 h-4 text-slate-500 transform transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -203,31 +203,31 @@
 
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Staff needed</label>
+                                    <label class="block text-xs text-slate-600 mb-1 min-h-8">Staff needed</label>
                                     <input type="number" id="travelPLFs" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="1" value="1">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Lodging per night ($)</label>
+                                    <label class="block text-xs text-slate-600 mb-1 min-h-8">Lodging per night ($)</label>
                                     <input type="number" id="travelLodgingPerNight" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.01" value="275">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Ground transport per person/day ($)</label>
+                                    <label class="block text-xs text-slate-600 mb-1 min-h-8">Ground transport per person/day ($)</label>
                                     <input type="number" id="travelGroundPerDay" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.01" value="100">
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Car travel / Miles</label>
+                                    <label class="block text-xs text-slate-600 mb-1 min-h-8"># of miles driven for car travel</label>
                                     <input type="number" id="travelCarMiles" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.01" value="0">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">IRS Mileage Rate ($/mile)</label>
-                                    <input type="number" id="travelCarRate" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.001" value="0.70">
+                                    <label class="block text-xs text-slate-600 mb-1 min-h-8">IRS Mileage Rate ($/mile)</label>
+                                    <input type="number" id="travelCarRate" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md bg-slate-100 text-slate-500 cursor-not-allowed" min="0" step="0.001" value="0.70" disabled>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Mileage Cost Total</label>
-                                    <input type="number" id="travelCarTotal" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" readonly value="0.00">
+                                    <label class="block text-xs text-slate-600 mb-1 min-h-8">Mileage Cost Total</label>
+                                    <input type="number" id="travelCarTotal" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md bg-slate-100 text-slate-500 cursor-not-allowed" readonly value="0.00" disabled>
                                 </div>
                             </div>
 
@@ -336,7 +336,7 @@
                             </div>
                         </div>
 
-                        <button class="w-full mt-4 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors" onclick="exportToPDF()">Export Estimate</button>
+                        <button id="exportBtn" class="w-full mt-4 bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors">Export Estimate</button>
                     </div>
                 </div>
 
