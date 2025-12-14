@@ -34,6 +34,17 @@ jobs:
         working-directory: ./ws-pricing-calculator
         run: npm run build --if-present
 
+      - name: Prepare dist for Pages
+        run: |
+          # Ensure index.html and favicon are published at site root
+          if [ -f ws-pricing-calculator/index.html ]; then
+            cp ws-pricing-calculator/index.html ws-pricing-calculator/dist/index.html
+          fi
+          if [ -d ws-pricing-calculator/favicon ]; then
+            rm -rf ws-pricing-calculator/dist/favicon || true
+            cp -r ws-pricing-calculator/favicon ws-pricing-calculator/dist/
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
