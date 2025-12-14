@@ -5,6 +5,10 @@ module.exports = {
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist'),
+    // Load chunks relative to the current page (good for GitHub Pages)
+    publicPath: './',
+    // Use numeric ids for chunk files so runtime will request e.g. "43.bundle.js"
+    chunkFilename: '[id].bundle.js',
     clean: true,
   },
   devServer: {
