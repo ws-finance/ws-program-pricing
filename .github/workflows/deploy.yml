@@ -21,13 +21,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./ws-pricing-calculator
+        run: |
+          npm ci
+
+      - name: Build production bundle
+        working-directory: ./ws-pricing-calculator
+        run: |
+          npm run build
+
+      - name: Prepare dist for Pages
+        run: |
+          # Ensure index.html and favicon are published at site root
+          cp ws-pricing-calculator/index.html ws-pricing-calculator/dist/index.html
+          if [ -d ws-pricing-calculator/favicon ]; then
+            rm -rf ws-pricing-calculator/dist/favicon
+            cp -r ws-pricing-calculator/favicon ws-pricing-calculator/dist/
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact
+      - name: Upload artifact (dist)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./ws-pricing-calculator
+          path: ./ws-pricing-calculator/dist
 
   deploy:
     environment:
