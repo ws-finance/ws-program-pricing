@@ -1,0 +1,22 @@
+{
+  "name": "pricing-calculator",
+  "version": "1.0.0",
+  "description": "World Savvy pricing calculator with travel and flat-fee support",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "jsdom": "^27.3.0"
+  }
+}
