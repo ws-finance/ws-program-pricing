@@ -186,11 +186,13 @@ export function calculateTravel() {
     // Use editable airfare input if provided, otherwise use CSV rate
     const airfarePerTrip = airfareInputEl && airfareInputEl.value ? parseFloat(airfareInputEl.value) : csvAirfarePerTrip;
 
-    // Airfare: include base airfare for trips + any extra flights the user entered
-    const baseAirfareForTrips = airfarePerTrip * trips * plfs;
-    // Multiply number of flights by staff needed (each staff's flights)
-    const flightsTotal = numberOfAirfare * plfs * airfarePerTrip;
-    const airfareTotal = baseAirfareForTrips + flightsTotal;
+    // Airfare: if user enters number of flights, use that (per staff), else use trips * staff
+    let airfareTotal = 0;
+    if (numberOfAirfare > 0) {
+        airfareTotal = numberOfAirfare * plfs * airfarePerTrip;
+    } else {
+        airfareTotal = trips * plfs * airfarePerTrip;
+    }
     const perDiemTotal = perDiem * (days + 1) * trips * plfs; // Per diem is for nights + 1
     const lodgingTotal = lodgingPerNight * days * trips * plfs;
     const groundTotal = groundPerDay * days * trips * plfs;
@@ -231,7 +233,7 @@ export function calculateTravel() {
         calcBtn.dataset.transport = (groundTotal + transportAddTotal).toFixed(2);
         calcBtn.dataset.perdiem = (perDiemTotal + perdiemAddTotal).toFixed(2);
         calcBtn.dataset.carMileage = (carMileageTotal + carAddTotal).toFixed(2);
-        calcBtn.dataset.flights = flightsTotal.toFixed(2);
+        calcBtn.dataset.flights = (numberOfAirfare > 0 ? numberOfAirfare * plfs : trips * plfs).toFixed(2);
         calcBtn.dataset.additionalTrips = additionalTripsTotal.toFixed(2);
     }
     // update airfare per-trip preview

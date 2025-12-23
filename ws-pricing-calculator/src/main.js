@@ -61,12 +61,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const lodgingRegionEl = document.getElementById('lodgingRegion');
 
     if (travelToEl) {
-        travelToEl.addEventListener('change', onTravelToChange);
+        travelToEl.addEventListener('change', () => {
+            onTravelToChange();
+            calculateTravel();
+        });
     }
     if (travelFromEl) {
         travelFromEl.addEventListener('change', () => {
             onTravelToChange();
             updateAirfarePreview();
+            calculateTravel();
         });
     }
     if (travelAirfareEl) {
