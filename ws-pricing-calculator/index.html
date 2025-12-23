@@ -7,19 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400&family=Visby+CF:wght@700;900&display=swap" rel="stylesheet">
-    <link href="./dist/styles.css" rel="stylesheet">
-                        'medium': 500,
-                        'semibold': 600,
-                        'bold': 700,
-                        'extrabold': 800,
-                        'black': 900,
-                    },
-                    rotate: {
-                        '180': '180deg',
-                    }
-                }
-            }
-        }
+    <!-- Use styles.css from dist/ in both dev and production -->
+    <link href="styles.css" rel="stylesheet">
     </script>
     <!-- Favicons -->
 <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
@@ -207,7 +196,7 @@
                                     <button id="applyTravelBtn" class="bg-secondary-600 hover:bg-secondary-700 text-white px-4 rounded-md shadow text-sm h-12 font-semibold whitespace-nowrap w-full md:w-auto">Apply to Additional Costs</button>
                                 </div>
                                 <div class="mt-2 sm:mt-0">
-                                    <button id="clearTravelBtn" class="bg-white border border-slate-300 text-slate-700 px-3 rounded-md text-sm h-10 whitespace-nowrap w-full md:w-auto">Clear Travel</button>
+                                    <button id="clearTravelBtn" class="bg-white border border-slate-300 text-slate-700 font-semibold px-4 rounded-md text-sm h-12 whitespace-nowrap w-full md:w-auto shadow-sm">Clear Travel</button>
                                 </div>
                                 <div class="mt-2 md:mt-0 md:ml-auto text-right">
                                     <div class="text-sm text-slate-600">Airfare per trip</div>
@@ -331,6 +320,7 @@
         </div>
     </div>
 
-        <script src="./bundle.js"></script>
+        <!-- Use bundle.js from dist/ in both dev and production -->
+        <script src="bundle.js"></script>
 </body>
 </html>
