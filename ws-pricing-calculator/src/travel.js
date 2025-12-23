@@ -125,32 +125,48 @@ export function onTravelToChange() {
     updateAirfarePreview();
 }
 
-export function updateAirfarePreview() {
+// Track if user has manually edited airfare input
+let airfareUserEdited = false;
+
+export function updateAirfarePreview(force = false) {
     const airfareInputEl = el('travelAirfare');
     const airfarePreviewEl = el('travelAirfarePerTrip');
     if (!airfarePreviewEl) return;
-    
-    // Use user-entered value if available, otherwise use CSV rate
+
+    const travelFromEl = el('travelFrom');
+    const travelToEl = el('travelTo');
     let perTrip = 0;
-    if (airfareInputEl && airfareInputEl.value) {
-        perTrip = parseFloat(airfareInputEl.value) || 0;
-    } else {
-        const travelFromEl = el('travelFrom');
-        const travelToEl = el('travelTo');
-        if (travelFromEl && travelToEl) {
-            const from = travelFromEl.value;
-            const to = travelToEl.value;
-            const rate = travelRates.find(r => r.from === from && r.to === to);
-            perTrip = rate ? rate.amount : 0;
-            // Prefill the editable airfare input only if it's empty (preserve user edits)
-            if (airfareInputEl && !airfareInputEl.value) {
-                airfareInputEl.value = perTrip > 0 ? perTrip.toFixed(2) : '';
-            }
+    if (travelFromEl && travelToEl) {
+        const from = travelFromEl.value;
+        const to = travelToEl.value;
+        const rate = travelRates.find(r => r.from === from && r.to === to);
+        perTrip = rate ? rate.amount : 0;
+        // Prefill the editable airfare input if not user-edited or if forced
+        if (airfareInputEl && (!airfareUserEdited || force)) {
+            airfareInputEl.value = perTrip > 0 ? perTrip.toFixed(2) : '';
+            airfareUserEdited = false;
         }
     }
-    
-    airfarePreviewEl.textContent = formatCurrency(perTrip);
+    // If user has entered a value, show that in the preview; else show CSV
+    if (airfareInputEl && airfareInputEl.value && airfareUserEdited) {
+        airfarePreviewEl.textContent = formatCurrency(parseFloat(airfareInputEl.value) || 0);
+    } else {
+        airfarePreviewEl.textContent = formatCurrency(perTrip);
+    }
 }
+
+// Listen for user edits to airfare input
+document.addEventListener('DOMContentLoaded', () => {
+    const airfareInputEl = el('travelAirfare');
+    if (airfareInputEl) {
+        airfareInputEl.addEventListener('input', () => {
+            airfareUserEdited = true;
+        });
+        airfareInputEl.addEventListener('focus', () => {
+            airfareUserEdited = true;
+        });
+    }
+});
 
 export function calculateTravel() {
     const travelFromEl = el('travelFrom');
