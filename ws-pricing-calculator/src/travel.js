@@ -79,6 +79,9 @@ export function populateTravelSelectors() {
     if (travelFrom && travelFrom.options.length) travelFrom.selectedIndex = 0;
     if (travelTo && travelTo.options.length) travelTo.selectedIndex = 0;
 
+    // Always re-attach event listeners after repopulating
+    if (window.attachTravelDropdownListeners) window.attachTravelDropdownListeners();
+
     // default per diem and ground (guard elements)
     const travelPerDiemEl = el('travelPerDiem');
     const travelGroundEl = el('travelGroundPerDay');

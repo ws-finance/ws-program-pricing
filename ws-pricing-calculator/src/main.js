@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Populate program selector and load travel data
     populateProgramSelector(programData);
     await loadTravelData();
+    attachTravelDropdownListeners();
 
     // Wire up export button
     const exportBtn = document.getElementById('exportBtn');
@@ -60,19 +61,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     const travelAirfareEl = document.getElementById('travelAirfare');
     const lodgingRegionEl = document.getElementById('lodgingRegion');
 
-    if (travelToEl) {
-        travelToEl.addEventListener('change', () => {
-            onTravelToChange();
-            calculateTravel();
-        });
+    // Attach listeners to travel dropdowns (helper function)
+    function attachTravelDropdownListeners() {
+        const travelToEl = document.getElementById('travelTo');
+        const travelFromEl = document.getElementById('travelFrom');
+        if (travelToEl) {
+            travelToEl.onchange = () => {
+                onTravelToChange();
+                calculateTravel();
+            };
+        }
+        if (travelFromEl) {
+            travelFromEl.onchange = () => {
+                onTravelToChange();
+                updateAirfarePreview();
+                calculateTravel();
+            };
+        }
     }
-    if (travelFromEl) {
-        travelFromEl.addEventListener('change', () => {
-            onTravelToChange();
-            updateAirfarePreview();
-            calculateTravel();
-        });
-    }
+
+    // Patch: re-attach listeners after travel selectors are repopulated
+    // (call this after any UI action that could reset the travel panel)
+    window.attachTravelDropdownListeners = attachTravelDropdownListeners;
     if (travelAirfareEl) {
         travelAirfareEl.addEventListener('change', updateAirfarePreview);
         travelAirfareEl.addEventListener('input', updateAirfarePreview);
