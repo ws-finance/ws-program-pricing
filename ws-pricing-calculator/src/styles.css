@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Ensure labels in the travel calculator have consistent height so inputs align */
+.travel-calculator label {
+	display: block;
+	min-height: 2.25rem; /* ~36px — accommodates two-line labels */
+}

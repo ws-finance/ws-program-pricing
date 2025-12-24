@@ -84,7 +84,7 @@
                         <h2 class="text-lg font-subheader font-black text-slate-900 mb-4">Cost Summary</h2>
 
                         <!-- Travel Calculator -->
-                        <div class="space-y-4 mb-6 border-t pt-4">
+                            <div class="space-y-4 mb-6 border-t pt-4 travel-calculator">
                             <div class="flex items-start justify-between">
                                 <h3 class="text-sm font-subheader font-black text-slate-900">Travel Calculator</h3>
                                 <div class="ml-2">
@@ -124,7 +124,7 @@
                                     <input type="number" id="travelAirfare" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.01" placeholder="0.00">
                                 </div>
                                                                 <div>
-                                                                    <label class="block text-xs text-slate-600 mb-1"># of flights
+                                                                    <label class="block text-xs text-slate-600 mb-1"># of flights per person
                                                                         <button type="button" class="ml-2 inline-flex items-center text-slate-400 hover:text-slate-600" title="# of flights is per staff member (e.g. 2 staff × 2 flights = 4 flights)">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                                                                 <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-9-3a1 1 0 112 0v1a1 1 0 11-2 0V7zm1 4a1 1 0 00-.867.5l-.5 1a1 1 0 00.867 1.5h1a1 1 0 00.867-1.5l-.5-1A1 1 0 0010 11z" clip-rule="evenodd" />
@@ -141,9 +141,10 @@
                                     <input type="number" id="travelPerDiem" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="0.01" value="100">
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-slate-600 mb-1">Trips per person</label>
+                                    <label class="block text-xs text-slate-600 mb-1">Primary trips per person</label>
                                     <input type="number" id="travelTrips" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="1" step="1" value="1">
                                 </div>
+
                                 <div>
                                     <label class="block text-xs text-slate-600 mb-1">Nights lodging</label>
                                     <input type="number" id="travelDays" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="1" value="1">
@@ -183,6 +184,7 @@
                                 <div>
                                     <label class="block text-xs text-slate-600 mb-1 min-h-8"># of Additional Trips</label>
                                     <input type="number" id="numOfAdditionalTrips" class="w-full h-12 px-3 py-2 text-sm border border-slate-300 rounded-md" min="0" step="1" value="0">
+                                    <p class="text-xs text-slate-500 mt-1">Additional trips are follow-ups; they're charged per staff and calculated separately.</p>
                                 </div>
                                 <div>
                                     <label class="block text-xs text-slate-600 mb-1 min-h-8">Avg. # of nights per Additional Trip</label>

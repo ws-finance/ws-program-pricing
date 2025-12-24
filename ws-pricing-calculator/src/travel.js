@@ -247,6 +247,9 @@ export function calculateTravel() {
     const plfs = parseInt(el('travelPLFs')?.value) || 0;
     const trips = parseInt(el('travelTrips')?.value) || 1;
     const days = parseInt(el('travelDays')?.value) || 0;
+    // Additional trips (separate from main trips)
+    const additionalTrips = parseInt(el('numOfAdditionalTrips')?.value) || 0;
+    const avgNightsAdditional = parseInt(el('avgNumOfNightsPerAdditionalTrip')?.value) || 0;
 
     const perDiem = parseFloat(el('travelPerDiem')?.value) || 0;
     const lodging = parseFloat(el('travelLodgingPerNight')?.value) || 0;
@@ -257,20 +260,33 @@ export function calculateTravel() {
     const lodgingTotal = lodging * days * trips * plfs;
     const groundTotal = ground * days * trips * plfs;
 
+    // Additional trips totals
+    // Additional-trip airfare should NOT multiply by the '# of flights' field
+    // (additional trips are counted separately from the per-trip flights multiplier)
+    const addAirfareTotal = perTrip * additionalTrips * plfs;
+    const addPerDiemTotal = perDiem * (avgNightsAdditional + 1) * additionalTrips * plfs;
+    const addLodgingTotal = lodging * avgNightsAdditional * additionalTrips * plfs;
+    const addGroundTotal = ground * avgNightsAdditional * additionalTrips * plfs;
+
+    const totalAirfare = airfareTotal + addAirfareTotal;
+    const totalPerDiem = perDiemTotal + addPerDiemTotal;
+    const totalLodging = lodgingTotal + addLodgingTotal;
+    const totalGround = groundTotal + addGroundTotal;
+
     const total =
-        airfareTotal +
-        perDiemTotal +
-        lodgingTotal +
-        groundTotal;
+        totalAirfare +
+        totalPerDiem +
+        totalLodging +
+        totalGround;
 
     el('travelTotal') && (el('travelTotal').textContent = formatCurrency(total));
 
     const calcBtn = el('calculateTravelBtn');
     if (calcBtn) {
-        calcBtn.dataset.airfare = airfareTotal.toFixed(2);
-        calcBtn.dataset.lodging = lodgingTotal.toFixed(2);
-        calcBtn.dataset.transport = groundTotal.toFixed(2);
-        calcBtn.dataset.perdiem = perDiemTotal.toFixed(2);
+        calcBtn.dataset.airfare = totalAirfare.toFixed(2);
+        calcBtn.dataset.lodging = totalLodging.toFixed(2);
+        calcBtn.dataset.transport = totalGround.toFixed(2);
+        calcBtn.dataset.perdiem = totalPerDiem.toFixed(2);
     }
 }
 
