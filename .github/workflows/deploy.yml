@@ -36,22 +36,28 @@ jobs:
         run: |
           npm run build
 
-      - name: Prepare dist for Pages
+      - name: Prepare artifact for Pages
         run: |
-          # Ensure index.html and favicon are published at site root
-          cp ws-pricing-calculator/index.html ws-pricing-calculator/dist/index.html
+          # Copy the contents of dist/ into a temporary artifact folder so files
+          # are published at the site root (not inside a `dist/` subfolder).
+          mkdir -p ./artifact
+          cp -r ws-pricing-calculator/dist/* ./artifact/ || true
+          # Ensure index.html and favicon are published at site root in the artifact
+          cp ws-pricing-calculator/index.html ./artifact/index.html || true
           if [ -d ws-pricing-calculator/favicon ]; then
-            rm -rf ws-pricing-calculator/dist/favicon
-            cp -r ws-pricing-calculator/favicon ws-pricing-calculator/dist/
+            rm -rf ./artifact/favicon
+            cp -r ws-pricing-calculator/favicon ./artifact/
           fi
+          echo "Artifact contents:"
+          ls -la ./artifact
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
-      - name: Upload artifact (dist)
+      - name: Upload artifact (dist contents)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./ws-pricing-calculator/dist
+          path: ./artifact
 
   deploy:
     environment:
