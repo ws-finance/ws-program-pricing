@@ -7,8 +7,8 @@
     "copy-html": "cp index.html dist/index.html",
     "dev": "npm run copy-html && webpack serve --mode development",
     "build:css": "./node_modules/.bin/tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify",
-    "build": "npm run build:css && npm run copy-html && webpack --mode production && node copy-csv.js",
-    "build:dev": "npm run copy-html && webpack --mode development"
+    "build": "webpack --mode production && npm run build:css && npm run copy-html && node copy-csv.js",
+    "build:dev": "webpack --mode development && npm run copy-html"
   },
   "keywords": [],
   "author": "",
