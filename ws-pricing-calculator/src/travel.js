@@ -223,6 +223,8 @@ function attachAirfareInputListeners() {
 export function calculateTravel() {
     const airfareInput = el('travelAirfare');
     const perTrip = parseFloat(airfareInput?.value) || 0;
+    // Number of flights per staff member (e.g. 2 staff × 2 flights = 4 flights)
+    const numberOfAirfare = parseInt(el('numberOfAirfare')?.value) || 1;
 
     const plfs = parseInt(el('travelPLFs')?.value) || 0;
     const trips = parseInt(el('travelTrips')?.value) || 1;
@@ -232,7 +234,7 @@ export function calculateTravel() {
     const lodging = parseFloat(el('travelLodgingPerNight')?.value) || 0;
     const ground = parseFloat(el('travelGroundPerDay')?.value) || 0;
 
-    const airfareTotal = perTrip * trips * plfs;
+    const airfareTotal = perTrip * numberOfAirfare * trips * plfs;
     const perDiemTotal = perDiem * (days + 1) * trips * plfs;
     const lodgingTotal = lodging * days * trips * plfs;
     const groundTotal = ground * days * trips * plfs;
