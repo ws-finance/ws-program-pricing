@@ -5,7 +5,8 @@
   "main": "dist/bundle.js",
   "scripts": {
     "copy-html": "cp index.html dist/index.html",
-    "dev": "npm run copy-html && webpack serve --mode development",
+    "copy-assets": "mkdir -p dist && cp -r favicon dist/ || true",
+    "dev": "npm run build:css && npm run copy-html && npm run copy-assets && node copy-csv.js && webpack serve --mode development",
     "build:css": "./node_modules/.bin/tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify",
     "build": "webpack --mode production && npm run build:css && npm run copy-html && node copy-csv.js",
     "build:dev": "webpack --mode development && npm run copy-html"
