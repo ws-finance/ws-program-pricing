@@ -28,8 +28,26 @@ function getSelectedRoute() {
 }
 
 function getCsvAirfare(from, to) {
-    const rate = travelRates.find(r => r.from === from && r.to === to);
-    return rate ? rate.amount : 0;
+    if (!from || !to) return 0;
+
+    // Helper to normalize strings for tolerant matching
+    const normalize = s => (s || '').toString().trim().toLowerCase();
+
+    // 1) Try exact match first (preserve existing behavior)
+    let rate = travelRates.find(r => r.from === from && r.to === to);
+    if (rate) return rate.amount || 0;
+
+    // 2) Try normalized (case/whitespace-insensitive) match
+    const nFrom = normalize(from);
+    const nTo = normalize(to);
+    rate = travelRates.find(r => normalize(r.from) === nFrom && normalize(r.to) === nTo);
+    if (rate) return rate.amount || 0;
+
+    // 3) Try reverse direction (A->B not present but B->A exists) — assume symmetric if present
+    rate = travelRates.find(r => normalize(r.from) === nTo && normalize(r.to) === nFrom);
+    if (rate) return rate.amount || 0;
+
+    return 0;
 }
 
 /* =========================
