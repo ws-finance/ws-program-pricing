@@ -253,6 +253,8 @@ export function calculateTravel() {
 
     const perDiem = parseFloat(el('travelPerDiem')?.value) || 0;
     const lodging = parseFloat(el('travelLodgingPerNight')?.value) || 0;
+    const carMiles = parseFloat(el('travelCarMiles')?.value) || 0;
+    const carRate = parseFloat(el('travelCarRate')?.value) || 0;
     const ground = parseFloat(el('travelGroundPerDay')?.value) || 0;
 
     const airfareTotal = perTrip * numberOfAirfare * trips * plfs;
@@ -268,6 +270,10 @@ export function calculateTravel() {
     const addLodgingTotal = lodging * avgNightsAdditional * additionalTrips * plfs;
     const addGroundTotal = ground * avgNightsAdditional * additionalTrips * plfs;
 
+    // Car mileage: treated as trip-level miles (not multiplied by staff)
+    // Car mileage total = miles * rate * Trips per person
+    const carTotal = carMiles * carRate * trips;
+
     const totalAirfare = airfareTotal + addAirfareTotal;
     const totalPerDiem = perDiemTotal + addPerDiemTotal;
     const totalLodging = lodgingTotal + addLodgingTotal;
@@ -277,7 +283,8 @@ export function calculateTravel() {
         totalAirfare +
         totalPerDiem +
         totalLodging +
-        totalGround;
+        totalGround +
+        carTotal;
 
     el('travelTotal') && (el('travelTotal').textContent = formatCurrency(total));
 
@@ -286,8 +293,13 @@ export function calculateTravel() {
         calcBtn.dataset.airfare = totalAirfare.toFixed(2);
         calcBtn.dataset.lodging = totalLodging.toFixed(2);
         calcBtn.dataset.transport = totalGround.toFixed(2);
+        calcBtn.dataset.mileage = carTotal.toFixed(2);
         calcBtn.dataset.perdiem = totalPerDiem.toFixed(2);
     }
+    // Update the readonly car total field in the UI
+    const carTotalEl = el('travelCarTotal');
+    if (carTotalEl) carTotalEl.value = carTotal.toFixed(2);
+
 }
 
 /* =========================
@@ -301,16 +313,19 @@ export function applyTravelToSummary(appliedTravel) {
     appliedTravel.lodging = parseFloat(btn?.dataset.lodging) || 0;
     appliedTravel.transport = parseFloat(btn?.dataset.transport) || 0;
     appliedTravel.meals = parseFloat(btn?.dataset.perdiem) || 0;
+    appliedTravel.mileage = parseFloat(btn?.dataset.mileage) || 0;
 
     el('airfareSummary').textContent = formatCurrency(appliedTravel.airfare);
     el('hotelSummary').textContent = formatCurrency(appliedTravel.lodging);
     el('transportSummary').textContent = formatCurrency(appliedTravel.transport);
     el('mealsSummary').textContent = formatCurrency(appliedTravel.meals);
+    el('carMileageSummary').textContent = formatCurrency(appliedTravel.mileage);
     el('travelSummary').textContent = formatCurrency(
         appliedTravel.airfare +
         appliedTravel.lodging +
         appliedTravel.transport +
-        appliedTravel.meals
+        appliedTravel.meals +
+        appliedTravel.mileage
     );
 
     updateTotal();
