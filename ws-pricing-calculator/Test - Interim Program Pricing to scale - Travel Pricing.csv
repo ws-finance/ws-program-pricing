@@ -3,14 +3,13 @@ From,To,Amount (Roundtrip),Lodging Per Night
 Local travel/no travel,Local travel/no travel,$0,0
 West Coast,Midwest,$800,275
 West Coast,Mountain West,$250,275
-Midwest,East Coast,$700,375
+Midwest,East Coast,$700,275
 Midwest,South,$500,275
-Midwest,West Coast,$800,375
+Midwest,West Coast,$800,275
 Midwest,Mountain West,$250,275
 Midwest,Midwest,$250,275
 Southeast,Midwest,$600,275
 East Coast,East Coast,$250,275
-US,International,"$1,750",375
 Hotels & Lodging,,,
 Location,,Amount per Night,
 All regions ex. NYC/SFO,,$275,

@@ -1,16 +1,45 @@
 import { el, show, hide, getString, getNumber, formatCurrency, calculateComponentCost } from './utils.js';
+import { applyTravelToSummary } from './travel.js';
 
 let summaryPanelInitialized = false;
 export let appliedTravel = {
     airfare: 0,
     lodging: 0,
     transport: 0,
-    meals: 0
+    meals: 0,
+    mileage: 0
 };
 
-export function updateTotal() {
-    let baseTotal = 0;
+// ========================
+// Helper Functions
+// ========================
 
+function getInputNumber(id, fallback = 0) {
+    const input = el(id);
+    return input ? (parseFloat(input.value) || 0) : fallback;
+}
+
+function setText(id, value) {
+    const node = el(id);
+    if (node) node.textContent = value;
+}
+
+function getTravelCosts() {
+    return {
+        airfare: getInputNumber('airfare', appliedTravel.airfare),
+        lodging: getInputNumber('hotel', appliedTravel.lodging),
+        transport: getInputNumber('transportation', appliedTravel.transport),
+        meals: getInputNumber('mealsPerDiem', appliedTravel.meals),
+        mileage: appliedTravel.mileage
+    };
+}
+
+function getTravelTotal(costs) {
+    return Object.values(costs).reduce((sum, v) => sum + v, 0);
+}
+
+function calculateBaseTotal() {
+    let baseTotal = 0;
     document.querySelectorAll('.program-section').forEach(section => {
         let programTotal = 0;
         section.querySelectorAll('tbody tr').forEach(row => {
@@ -25,49 +54,54 @@ export function updateTotal() {
         }
         baseTotal += programTotal;
     });
+    return baseTotal;
+}
 
-    const indirectEl = el('indirectRate');
-    const markupEl = el('markup');
-    const indirectRate = indirectEl ? (parseFloat(indirectEl.value) || 0) : 0;
-    const markupRate = markupEl ? (parseFloat(markupEl.value) || 0) : 0;
-
-    const airfareEl = el('airfare');
-    const hotelEl = el('hotel');
-    const transportationEl = el('transportation');
-    const mealsEl = el('mealsPerDiem');
-    const airfare = airfareEl ? (parseFloat(airfareEl.value) || 0) : (appliedTravel.airfare || 0);
-    const hotel = hotelEl ? (parseFloat(hotelEl.value) || 0) : (appliedTravel.lodging || 0);
-    const transportation = transportationEl ? (parseFloat(transportationEl.value) || 0) : (appliedTravel.transport || 0);
-    const mealsPerDiem = mealsEl ? (parseFloat(mealsEl.value) || 0) : (appliedTravel.meals || 0);
-    const additionalCosts = airfare + hotel + transportation + mealsPerDiem;
-
-    const travelSummaryEl = el('travelSummary');
-    if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(additionalCosts);
-
-    const airfareSummaryEl = el('airfareSummary');
-    const hotelSummaryEl = el('hotelSummary');
-    const transportSummaryEl = el('transportSummary');
-    const mealsSummaryEl = el('mealsSummary');
-    if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(airfare);
-    if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(hotel);
-    if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(transportation);
-    if (mealsSummaryEl) mealsSummaryEl.textContent = formatCurrency(mealsPerDiem);
+function calculateTotals() {
+    const baseTotal = calculateBaseTotal();
+    const indirectRate = getInputNumber('indirectRate');
+    const markupRate = getInputNumber('markup');
 
     const indirectCost = baseTotal * (indirectRate / 100);
     const markupCost = (baseTotal + indirectCost) * (markupRate / 100);
-    const subtotal = baseTotal + indirectCost + markupCost;
-    const grandTotal = subtotal + additionalCosts;
 
-    const baseCostEl = el('baseCost');
-    const indirectCostEl = el('indirectCost');
-    const markupCostEl = el('markupCost');
-    const subtotalEl = el('subtotal');
-    const totalAmountEl = el('totalAmount');
-    if (baseCostEl) baseCostEl.textContent = formatCurrency(baseTotal);
-    if (indirectCostEl) indirectCostEl.textContent = formatCurrency(indirectCost);
-    if (markupCostEl) markupCostEl.textContent = formatCurrency(markupCost);
-    if (subtotalEl) subtotalEl.textContent = formatCurrency(subtotal);
-    if (totalAmountEl) totalAmountEl.textContent = formatCurrency(grandTotal);
+    const travel = getTravelCosts();
+    const travelTotal = getTravelTotal(travel);
+
+    const subtotal = baseTotal + indirectCost + markupCost;
+    const grandTotal = subtotal + travelTotal;
+
+    return {
+        baseTotal,
+        indirectCost,
+        markupCost,
+        subtotal,
+        grandTotal,
+        travel,
+        travelTotal
+    };
+}
+
+function renderTotals(totals) {
+    const { baseTotal, indirectCost, markupCost, subtotal, grandTotal, travel } = totals;
+
+    setText('airfareSummary', formatCurrency(travel.airfare));
+    setText('hotelSummary', formatCurrency(travel.lodging));
+    setText('transportSummary', formatCurrency(travel.transport));
+    setText('mealsSummary', formatCurrency(travel.meals));
+    setText('carMileageSummary', formatCurrency(travel.mileage));
+    setText('travelSummary', formatCurrency(totals.travelTotal));
+
+    setText('baseCost', formatCurrency(baseTotal));
+    setText('indirectCost', formatCurrency(indirectCost));
+    setText('markupCost', formatCurrency(markupCost));
+    setText('subtotal', formatCurrency(subtotal));
+    setText('totalAmount', formatCurrency(grandTotal));
+}
+
+export function updateTotal() {
+    const totals = calculateTotals();
+    renderTotals(totals);
 }
 
 export function createComponentRow(component, programName, componentIndex) {
@@ -263,31 +297,21 @@ export function exportToPDF(programData) {
     URL.revokeObjectURL(url);
 }
 
-export function toggleInstructions() {
-    const content = el('instructionsContent');
-    const icon = el('instructionsIcon');
+function toggleSection(contentId, iconId) {
+    const content = el(contentId);
+    const icon = el(iconId);
     if (!content || !icon) return;
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-    } else {
-        content.classList.add('hidden');
-        icon.classList.remove('rotate-180');
-    }
+
+    const isHidden = content.classList.contains('hidden');
+    content.classList.toggle('hidden', !isHidden);
+    icon.classList.toggle('rotate-180', isHidden);
 }
 
-export function toggleTravelInstructions() {
-    const content = el('travelInstructionsContent');
-    const icon = el('travelInstructionsIcon');
-    if (!content || !icon) return;
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        icon.classList.add('rotate-180');
-    } else {
-        content.classList.add('hidden');
-        icon.classList.remove('rotate-180');
-    }
-}
+export const toggleInstructions = () =>
+    toggleSection('instructionsContent', 'instructionsIcon');
+
+export const toggleTravelInstructions = () =>
+    toggleSection('travelInstructionsContent', 'travelInstructionsIcon');
 
 function initializeSummaryPanel() {
     if (summaryPanelInitialized) return;
@@ -303,7 +327,18 @@ function initializeSummaryPanel() {
     if (hotelEl) hotelEl.addEventListener('input', updateTotal);
     if (transportEl) transportEl.addEventListener('input', updateTotal);
     if (mealsEl) mealsEl.addEventListener('input', updateTotal);
+    setupLodgingRegionToggle();
     summaryPanelInitialized = true;
+}
+
+// Lodging region toggle handler
+function setupLodgingRegionToggle() {
+    const lodgingRegion = el('lodgingRegion');
+    const lodgingPerNight = el('travelLodgingPerNight');
+    if (!lodgingRegion || !lodgingPerNight) return;
+    lodgingRegion.addEventListener('change', () => {
+        lodgingPerNight.value = lodgingRegion.checked ? '375' : '275';
+    });
 }
 
 export function clearTravel() {
@@ -311,32 +346,37 @@ export function clearTravel() {
     appliedTravel.lodging = 0;
     appliedTravel.transport = 0;
     appliedTravel.meals = 0;
-    appliedTravel.carMileage = 0;
+    appliedTravel.mileage = 0;
+
     const calcBtn = el('calculateTravelBtn');
     if (calcBtn) {
         calcBtn.dataset.airfare = '0';
         calcBtn.dataset.lodging = '0';
         calcBtn.dataset.transport = '0';
         calcBtn.dataset.perdiem = '0';
-        calcBtn.dataset.carMileage = '0';
+        calcBtn.dataset.mileage = '0';
     }
-    const airfareSummaryEl = el('airfareSummary');
-    const hotelSummaryEl = el('hotelSummary');
-    const transportSummaryEl = el('transportSummary');
-    const mealsSummaryEl = el('mealsSummary');
-    const travelSummaryEl = el('travelSummary');
-    const travelTotalEl = el('travelTotal');
-    const airfarePreviewEl = el('travelAirfarePerTrip');
+
+    // Clear all travel summary displays directly
+    const TRAVEL_SUMMARY_FIELDS = [
+        'airfareSummary',
+        'hotelSummary',
+        'transportSummary',
+        'mealsSummary',
+        'carMileageSummary',
+        'travelSummary',
+        'travelTotal',
+        'travelAirfarePerTrip'
+    ];
+    TRAVEL_SUMMARY_FIELDS.forEach(id => setText(id, formatCurrency(0)));
+
+    // Clear travel input fields
     const airfareInputEl = el('travelAirfare');
     const travelCarTotalEl = el('travelCarTotal');
-    if (airfareSummaryEl) airfareSummaryEl.textContent = formatCurrency(0);
-    if (hotelSummaryEl) hotelSummaryEl.textContent = formatCurrency(0);
-    if (transportSummaryEl) transportSummaryEl.textContent = formatCurrency(0);
-    if (mealsSummaryEl) mealsSummaryEl.textContent = formatCurrency(0);
-    if (travelSummaryEl) travelSummaryEl.textContent = formatCurrency(0);
-    if (travelTotalEl) travelTotalEl.textContent = formatCurrency(0);
-    if (airfarePreviewEl) airfarePreviewEl.textContent = formatCurrency(0);
+    const travelCarMilesEl = el('travelCarMiles');
     if (airfareInputEl) airfareInputEl.value = '';
     if (travelCarTotalEl) travelCarTotalEl.value = '0.00';
+    if (travelCarMilesEl) travelCarMilesEl.value = '0';
+
     updateTotal();
 }
